@@ -5,7 +5,7 @@
     "dev:api": "bun --filter @puck/api dev",
     "dev:web": "bun --filter @puck/web dev",
     "test:api": "bun --filter @puck/api test",
-    "code-style": "prettier --check ./**/*.ts",
+    "lint:code-style": "prettier --check ./**/*.{ts,json,vue,html}",
     "lint:web": "bun --filter @puck/web type-check"
   },
   "workspaces": [
