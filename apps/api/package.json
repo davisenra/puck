@@ -12,7 +12,5 @@
     "@elysiajs/openapi": "^1.4.13",
     "elysia": "latest"
   },
-  "devDependencies": {
-    "prettier": "3.8.0"
-  }
+  "devDependencies": {}
 }
