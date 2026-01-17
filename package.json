@@ -1,15 +1,17 @@
 {
-  "name": "puck",
-  "version": "1.0.50",
+  "name": "puck-monorepo",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev:api": "bun --filter @puck/api dev",
+    "dev:web": "bun --filter @puck/web dev",
+    "dev": "bun --filter '*' dev"
   },
-  "dependencies": {
-    "elysia": "latest"
-  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {},
   "devDependencies": {
-    "bun-types": "latest"
-  },
-  "module": "src/index.js"
+    "bun-types": "latest",
+    "prettier": "3.8.0"
+  }
 }
