@@ -9,8 +9,8 @@
     "lint": "prettier --check ./**/*.ts"
   },
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "apps/api",
+    "apps/web"
   ],
   "dependencies": {},
   "devDependencies": {
