@@ -33,8 +33,6 @@ export async function loadMigrations(): Promise<Migration[]> {
 }
 
 export async function runMigrations(db: Database, migrations: Migration[]) {
-  console.log('Running database migrations...');
-
   try {
     db.run(`
       CREATE TABLE IF NOT EXISTS migrations (
@@ -51,13 +49,10 @@ export async function runMigrations(db: Database, migrations: Migration[]) {
 
     for (const migration of migrations) {
       if (!appliedVersions.has(migration.name)) {
-        console.log(`Applying migration: ${migration.name}`);
         db.run(migration.sql);
         db.query('INSERT INTO migrations (name) VALUES (?)').run(migration.name);
       }
     }
-
-    console.log('Database migrations completed successfully');
   } catch (error) {
     console.error('Migration failed:', error);
     process.exit(1);

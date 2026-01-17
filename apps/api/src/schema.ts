@@ -1,15 +1,5 @@
 import { t } from 'elysia';
 
-export const equipmentType = t.Union([t.Literal('GRINDER'), t.Literal('BREWER')]);
-
-export const equipmentSchema = t.Object({
-  id: t.Optional(t.Numeric()),
-  name: t.String({ minLength: 1 }),
-  type: equipmentType,
-});
-
-export type Equipment = typeof equipmentSchema.static;
-
 export const coffeeSchema = t.Object({
   id: t.Optional(t.Numeric()),
   roaster: t.String({ minLength: 1 }),
@@ -17,6 +7,8 @@ export const coffeeSchema = t.Object({
   roastDate: t.Nullable(t.String()),
   process: t.Nullable(t.String()),
   notes: t.Nullable(t.String()),
+  createdAt: t.Optional(t.Date()),
+  updatedAt: t.Optional(t.Date()),
 });
 
 export type Coffee = typeof coffeeSchema.static;
@@ -34,6 +26,8 @@ export const extractionSchema = t.Object({
   rating: t.Numeric({ minimum: 1, maximum: 10 }),
   tastingNotes: t.Nullable(t.String()),
   recipeMetadata: t.Nullable(t.Object({}, {})),
+  createdAt: t.Optional(t.Date()),
+  updatedAt: t.Optional(t.Date()),
 });
 
 export type Extraction = typeof extractionSchema.static;

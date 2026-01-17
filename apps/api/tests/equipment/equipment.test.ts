@@ -1,0 +1,88 @@
+import { describe, test, expect, beforeEach, afterEach } from 'bun:test';
+import { createElysiaApplication } from '../../src/application';
+import { setupTestDatabase, teardownTestDatabase } from '../helper';
+import EquipmentService from '../../src/equipment/service';
+
+describe('/equipment', async () => {
+  const app = await createElysiaApplication();
+
+  beforeEach(async () => {
+    await setupTestDatabase();
+  });
+
+  afterEach(() => {
+    teardownTestDatabase();
+  });
+
+  test('returns list of equipment', async () => {
+    await EquipmentService.save({ name: 'Test 1', type: 'BREWER' });
+    await EquipmentService.save({ name: 'Test 2', type: 'GRINDER' });
+
+    const response = await app.handle(new Request('http://localhost/equipment'));
+    expect(response.status).toBe(200);
+
+    const data = await response.json();
+    expect(data).toBeArray();
+    expect(data).toBeArrayOfSize(2);
+    expect(data[0].name).toBe('Test 2');
+    expect(data[1].name).toBe('Test 1');
+  });
+
+  test('creates new equipment and returns 201', async () => {
+    const response = await app.handle(
+      new Request('http://localhost/equipment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Test Grinder', type: 'GRINDER' }),
+      }),
+    );
+
+    expect(response.status).toBe(201);
+    const data = await response.json();
+
+    expect(data.name).toBe('Test Grinder');
+    expect(data.type).toBe('GRINDER');
+    expect(data.id).toBeDefined();
+  });
+
+  test('deletes equipment and returns 204', async () => {
+    const created = await EquipmentService.save({ name: 'Test Grinder', type: 'GRINDER' });
+
+    const response = await app.handle(
+      new Request(`http://localhost/equipment/${created.id}`, {
+        method: 'DELETE',
+      }),
+    );
+
+    expect(response.status).toBe(204);
+  });
+
+  test('returns empty list when no equipment exists', async () => {
+    const response = await app.handle(new Request('http://localhost/equipment'));
+    expect(response.status).toBe(200);
+
+    const data = await response.json();
+    expect(data).toBeArray();
+    expect(data).toBeArrayOfSize(0);
+  });
+
+  test('returns equipment by id when exists', async () => {
+    const created = await EquipmentService.save({ name: 'Test Grinder', type: 'GRINDER' });
+
+    const response = await app.handle(new Request(`http://localhost/equipment/${created.id}`));
+    expect(response.status).toBe(200);
+
+    const data = await response.json();
+    expect(data.id).toBe(created.id);
+    expect(data.name).toBe('Test Grinder');
+    expect(data.type).toBe('GRINDER');
+  });
+
+  test('returns 404 when equipment by id does not exist', async () => {
+    const response = await app.handle(new Request('http://localhost/equipment/9999'));
+    expect(response.status).toBe(404);
+
+    const data = await response.json();
+    expect(data.error).toBe('Equipment not found');
+  });
+});

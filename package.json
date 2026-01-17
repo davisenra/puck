@@ -3,7 +3,8 @@
   "scripts": {
     "dev:api": "bun --filter @puck/api dev",
     "dev:web": "bun --filter @puck/web dev",
-    "dev": "bun --filter '*' dev"
+    "dev": "bun --filter '*' dev",
+    "test:api": "bun --filter @puck/api test"
   },
   "workspaces": [
     "apps/*",

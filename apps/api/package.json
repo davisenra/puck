@@ -5,9 +5,11 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "bun run --watch src/index.ts",
-    "build": "bun build ./src/index.ts --outdir ./dist"
+    "build": "bun build ./src/index.ts --outdir ./dist",
+    "test": "bun test **/**/*.test.ts"
   },
   "dependencies": {
+    "@elysiajs/openapi": "^1.4.13",
     "elysia": "latest"
   }
 }
