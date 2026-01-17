@@ -4,13 +4,12 @@
   "scripts": {
     "dev:api": "bun --filter @puck/api dev",
     "dev:web": "bun --filter @puck/web dev",
-    "dev": "bun --filter '*' dev",
     "test:api": "bun --filter @puck/api test",
-    "lint": "prettier --check ./**/*.ts"
+    "code-style": "prettier --check ./**/*.ts",
+    "lint:web": "bun --filter @puck/web type-check"
   },
   "workspaces": [
-    "apps/api",
-    "apps/web"
+    "apps/*"
   ],
   "dependencies": {},
   "devDependencies": {
