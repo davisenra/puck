@@ -1,5 +1,6 @@
 {
   "name": "puck-monorepo",
+  "private": true,
   "scripts": {
     "dev:api": "bun --filter @puck/api dev",
     "dev:web": "bun --filter @puck/web dev",
@@ -13,7 +14,6 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "bun-types": "latest",
-    "prettier": "3.8.0"
+    "bun-types": "latest"
   }
 }
