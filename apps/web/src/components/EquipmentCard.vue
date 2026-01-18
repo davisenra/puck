@@ -1,7 +1,28 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from "vue";
+import { useModal } from "@/composables/useModal";
+
+const { openDeleteModal } = useModal();
+
+const equipment = ref([
+  { id: 1, name: "Baratza Sette 270", type: "GRINDER" },
+  { id: 2, name: "V60", type: "BREWER" },
+]);
+
+async function handleDelete(id: number, name: string) {
+  const result = await openDeleteModal({
+    itemName: name,
+    itemType: "equipment",
+  });
+
+  if (result.confirmed) {
+    console.log("Deleting equipment:", id);
+  }
+}
+</script>
 
 <template>
-  <div id="equipment" class="card bg-base-100">
+  <div id="equipment" class="card bg-base-100 shadow">
     <div class="card-body">
       <div class="mb-4 flex items-center justify-between">
         <h2 class="card-title">Equipment</h2>
@@ -15,49 +36,24 @@
             <tr>
               <th>Name</th>
               <th>Type</th>
-              <th>Actions</th>
+              <th class="text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Baratza Sette 270</td>
-              <td><span class="badge badge-primary">GRINDER</span></td>
+            <tr v-for="item in equipment" :key="item.id">
+              <td>{{ item.name }}</td>
               <td>
-                <div class="dropdown dropdown-end dropdown-bottom">
-                  <div
-                    tabindex="0"
-                    role="button"
-                    class="btn btn-xs btn-ghost m-1"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                      />
-                    </svg>
-                  </div>
-                  <ul
-                    tabindex="0"
-                    class="dropdown-content menu bg-base-100 rounded-box z-50 w-32 p-2 shadow"
-                  >
-                    <li><a>Edit</a></li>
-                    <li><a class="text-error">Delete</a></li>
-                  </ul>
-                </div>
+                <span
+                  :class="[
+                    'badge',
+                    item.type === 'GRINDER'
+                      ? 'badge-primary'
+                      : 'badge-secondary',
+                  ]"
+                  >{{ item.type }}</span
+                >
               </td>
-            </tr>
-            <tr>
-              <td>V60</td>
-              <td><span class="badge badge-secondary">BREWER</span></td>
-              <td>
+              <td class="text-right">
                 <div class="dropdown dropdown-end dropdown-bottom">
                   <div
                     tabindex="0"
@@ -84,7 +80,13 @@
                     class="dropdown-content menu bg-base-100 rounded-box z-50 w-32 p-2 shadow"
                   >
                     <li><a>Edit</a></li>
-                    <li><a class="text-error">Delete</a></li>
+                    <li>
+                      <a
+                        class="text-error"
+                        @click="handleDelete(item.id, item.name)"
+                        >Delete</a
+                      >
+                    </li>
                   </ul>
                 </div>
               </td>
@@ -94,7 +96,7 @@
       </div>
 
       <div class="text-base-content/50 py-8 text-center">
-        <p>2 equipment items</p>
+        <p>{{ equipment.length }} equipment items</p>
       </div>
     </div>
   </div>

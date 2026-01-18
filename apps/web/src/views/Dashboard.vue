@@ -2,6 +2,17 @@
 import EquipmentCard from "@/components/EquipmentCard.vue";
 import CoffeeCard from "@/components/CoffeeCard.vue";
 import ExtractionCard from "@/components/ExtractionCard.vue";
+import { useModal } from "@/composables/useModal";
+
+const { openLogExtractionModal } = useModal();
+
+async function handleLogExtraction() {
+  const result = await openLogExtractionModal();
+
+  if (result?.extraction) {
+    console.log("Saving extraction:", result.extraction);
+  }
+}
 </script>
 
 <template>
@@ -21,6 +32,7 @@ import ExtractionCard from "@/components/ExtractionCard.vue";
 
     <button
       class="btn btn-primary btn-lg fixed right-8 bottom-8 z-50 gap-2 shadow-lg"
+      @click="handleLogExtraction"
     >
       <span class="text-xl">+</span>
       <span>Log Extraction</span>

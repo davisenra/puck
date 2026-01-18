@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Navbar from "@/components/Navbar.vue";
+import ModalContainer from "@/components/modal/ModalContainer.vue";
 </script>
 
 <template>
@@ -8,6 +9,7 @@ import Navbar from "@/components/Navbar.vue";
     <main>
       <RouterView />
     </main>
+    <ModalContainer />
   </div>
 </template>
 

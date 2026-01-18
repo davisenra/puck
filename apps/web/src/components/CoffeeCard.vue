@@ -1,7 +1,40 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from "vue";
+import { useModal } from "@/composables/useModal";
+
+const { openDeleteModal } = useModal();
+
+const coffees = ref([
+  {
+    id: 1,
+    roaster: "Onyx Coffee Lab",
+    name: "Ethiopia Gedeb",
+    process: "Washed",
+    status: "Available",
+  },
+  {
+    id: 2,
+    roaster: "Intelligentsia",
+    name: "House Blend",
+    process: "Natural",
+    status: "Archived",
+  },
+]);
+
+async function handleDelete(id: number, name: string) {
+  const result = await openDeleteModal({
+    itemName: name,
+    itemType: "coffee",
+  });
+
+  if (result.confirmed) {
+    console.log("Deleting coffee:", id);
+  }
+}
+</script>
 
 <template>
-  <div id="coffees" class="card bg-base-100">
+  <div id="coffees" class="card bg-base-100 shadow">
     <div class="card-body">
       <div class="mb-4 flex items-center justify-between">
         <h2 class="card-title">Coffees</h2>
@@ -17,53 +50,26 @@
               <th>Name</th>
               <th>Process</th>
               <th>Status</th>
-              <th>Actions</th>
+              <th class="text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Onyx Coffee Lab</td>
-              <td>Ethiopia Gedeb</td>
-              <td>Washed</td>
-              <td><span class="badge badge-success">Available</span></td>
+            <tr v-for="coffee in coffees" :key="coffee.id">
+              <td>{{ coffee.roaster }}</td>
+              <td>{{ coffee.name }}</td>
+              <td>{{ coffee.process }}</td>
               <td>
-                <div class="dropdown dropdown-end dropdown-bottom">
-                  <div
-                    tabindex="0"
-                    role="button"
-                    class="btn btn-xs btn-ghost m-1"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                      />
-                    </svg>
-                  </div>
-                  <ul
-                    tabindex="0"
-                    class="dropdown-content menu bg-base-100 rounded-box z-50 w-32 p-2 shadow"
-                  >
-                    <li><a>Edit</a></li>
-                    <li><a class="text-error">Delete</a></li>
-                  </ul>
-                </div>
+                <span
+                  :class="[
+                    'badge',
+                    coffee.status === 'Available'
+                      ? 'badge-success'
+                      : 'badge-neutral',
+                  ]"
+                  >{{ coffee.status }}</span
+                >
               </td>
-            </tr>
-            <tr>
-              <td>Intelligentsia</td>
-              <td>House Blend</td>
-              <td>Natural</td>
-              <td><span class="badge badge-neutral">Archived</span></td>
-              <td>
+              <td class="text-right">
                 <div class="dropdown dropdown-end dropdown-bottom">
                   <div
                     tabindex="0"
@@ -90,7 +96,13 @@
                     class="dropdown-content menu bg-base-100 rounded-box z-50 w-32 p-2 shadow"
                   >
                     <li><a>Edit</a></li>
-                    <li><a class="text-error">Delete</a></li>
+                    <li>
+                      <a
+                        class="text-error"
+                        @click="handleDelete(coffee.id, coffee.name)"
+                        >Delete</a
+                      >
+                    </li>
                   </ul>
                 </div>
               </td>
@@ -100,7 +112,7 @@
       </div>
 
       <div class="text-base-content/50 py-8 text-center">
-        <p>2 coffee items</p>
+        <p>{{ coffees.length }} coffee items</p>
       </div>
     </div>
   </div>
