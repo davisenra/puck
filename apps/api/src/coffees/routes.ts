@@ -1,5 +1,5 @@
 import { Elysia, t } from 'elysia';
-import { CreateCoffeeSchema, CoffeeListSchema, CoffeeSchema } from './schema';
+import { CreateCoffeeSchema, UpdateCoffeeSchema, CoffeeListSchema, CoffeeSchema } from './schema';
 import CoffeeService from './service';
 
 export default new Elysia({ prefix: '/coffees' })
@@ -42,6 +42,27 @@ export default new Elysia({ prefix: '/coffees' })
       params: t.Object({
         id: t.String(),
       }),
+      response: {
+        200: CoffeeSchema,
+        404: t.Object({ error: t.String() }),
+      },
+    },
+  )
+  .put(
+    '/:id',
+    async ({ params: { id }, body, set }) => {
+      const coffee = await CoffeeService.update(Number(id), body);
+      if (!coffee) {
+        set.status = 404;
+        return { error: 'Coffee not found' };
+      }
+      return coffee;
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+      body: UpdateCoffeeSchema,
       response: {
         200: CoffeeSchema,
         404: t.Object({ error: t.String() }),

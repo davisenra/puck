@@ -117,4 +117,38 @@ describe('/coffees', async () => {
     const data = await response.json();
     expect(data.error).toBe('Coffee not found');
   });
+
+  test('updates coffee and returns 200', async () => {
+    const created = await CoffeeService.save({
+      roaster: 'Test Roaster',
+      name: 'Test Coffee',
+      roastDate: null,
+      process: null,
+      notes: null,
+    });
+
+    const response = await app.handle(
+      new Request(`http://localhost/coffees/${created.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roaster: 'Updated Roaster',
+          name: 'Updated Coffee',
+          process: 'Natural',
+          notes: 'Updated notes',
+          archived: true,
+        }),
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const data = await response.json();
+
+    expect(data.id).toBe(created.id);
+    expect(data.roaster).toBe('Updated Roaster');
+    expect(data.name).toBe('Updated Coffee');
+    expect(data.process).toBe('Natural');
+    expect(data.notes).toBe('Updated notes');
+    expect(data.archived).toBe(true);
+  });
 });
