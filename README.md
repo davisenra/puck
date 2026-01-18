@@ -5,12 +5,14 @@ Puck is a self-hosted coffee logger application built as a monorepo. Users can s
 ## Tech Stack
 
 ### Backend
+
 - **Runtime**: Bun (JavaScript/TypeScript)
 - **Backend Framework**: Elysia
 - **Database**: SQLite (bun:sqlite)
 - **API Docs**: OpenAPI/Swagger at `/swagger`
 
 ### Frontend
+
 - **Framework**: Vue 3
 - **Build Tool**: Vite
 - **State Management**: Pinia
@@ -44,10 +46,12 @@ puck/
 ## Features
 
 ### Implemented
+
 - ✅ Equipment CRUD (grinders, brewers)
 - ✅ Coffees CRUD (roaster, name, roast date, process, notes)
 
 ### Pending Implementation
+
 - 🚧 Extractions (brewing records with equipment and coffee relationships)
 
 ## Getting Started

@@ -24,7 +24,7 @@ This guide provides essential information for coding agents working in the Puck 
 
 ### Type Checking
 
-- `bunx tsc --noEmit` - Type check API only (root tsconfig checks apps/api/**/*)
+- `bunx tsc --noEmit` - Type check API only (root tsconfig checks apps/api/\*_/_)
 - `bun run lint:web` - Type check web app (uses vue-tsc)
 
 ### Database Commands
@@ -34,6 +34,7 @@ This guide provides essential information for coding agents working in the Puck 
 ## Tech Stack
 
 ### Backend
+
 - **Runtime**: Bun
 - **Language**: TypeScript (strict mode enabled)
 - **Backend Framework**: Elysia
@@ -42,6 +43,7 @@ This guide provides essential information for coding agents working in the Puck 
 - **API Documentation**: OpenAPI/Swagger
 
 ### Frontend
+
 - **Framework**: Vue 3
 - **Build Tool**: Vite
 - **State Management**: Pinia
@@ -238,9 +240,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   const equipment = ref<Equipment[]>([]);
   const loading = ref(false);
 
-  const grinders = computed(() =>
-    equipment.value.filter((e) => e.type === 'GRINDER'),
-  );
+  const grinders = computed(() => equipment.value.filter((e) => e.type === 'GRINDER'));
 
   async function loadEquipment() {
     loading.value = true;
@@ -301,12 +301,14 @@ puck/
 ## Feature Implementation Status
 
 ### Completed
+
 - ✅ Equipment CRUD (grinders, brewers)
   - Routes: `GET /equipment`, `POST /equipment`, `GET /equipment/:id`, `DELETE /equipment/:id`
 - ✅ Coffees CRUD (roaster, name, roast date, process, notes)
   - Routes: `GET /coffees`, `POST /coffees`, `GET /coffees/:id`, `DELETE /coffees/:id`
 
 ### Pending Implementation
+
 - 🚧 Extractions (brewing records)
   - Migration exists: `0003_extractions.sql`
   - Schema exists: `apps/api/src/schema.ts`
