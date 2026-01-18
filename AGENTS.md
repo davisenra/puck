@@ -7,8 +7,9 @@ This guide provides essential information for coding agents working in the Puck 
 ### General Commands
 
 - `bun install` - Install all dependencies
-- `bun run dev` - Start all apps in dev mode
+- `bun run dev` - Start all apps in dev mode (API on 3000, web on 5173)
 - `bun run dev:api` - Start API server in dev mode (port 3000)
+- `bun run dev:web` - Start web app in dev mode (port 5173)
 - `bun run lint` - Check code formatting with Prettier
 
 ### Testing Commands
@@ -19,15 +20,33 @@ This guide provides essential information for coding agents working in the Puck 
 
 ### Build Commands
 
-- `bun run build` - Build the API package (output to ./dist)
+- `bun run build` - Build the API package (output to apps/api/dist)
+
+### Type Checking
+
+- `bunx tsc --noEmit` - Type check API only (root tsconfig checks apps/api/**/*)
+- `bun run lint:web` - Type check web app (uses vue-tsc)
+
+### Database Commands
+
+- `cd apps/api && bun run scripts/migrate.ts` - Run database migrations
 
 ## Tech Stack
 
+### Backend
 - **Runtime**: Bun
 - **Language**: TypeScript (strict mode enabled)
 - **Backend Framework**: Elysia
 - **Database**: SQLite (bun:sqlite)
 - **Testing**: bun:test
+- **API Documentation**: OpenAPI/Swagger
+
+### Frontend
+- **Framework**: Vue 3
+- **Build Tool**: Vite
+- **State Management**: Pinia
+- **Routing**: Vue Router
+- **Language**: TypeScript
 
 ## Code Style Guidelines
 
@@ -70,6 +89,7 @@ export type Equipment = typeof EquipmentSchema.static;
 - **Constants**: UPPER_SNAKE_CASE for SQL queries (e.g., `SELECT_ALL_SQL`)
 - **Types**: PascalCase (e.g., `Equipment`, `CreateEquipment`)
 - **Interfaces**: PascalCase with descriptive names (e.g., `EquipmentDatabaseRow`)
+- **Vue Components**: PascalCase (e.g., `CoffeeList.vue`)
 
 ### Error Handling
 
@@ -165,27 +185,142 @@ describe('/equipment', () => {
 
 ### Migrations
 
-- Migration files should be in `src/` or `scripts/` directory
+- Migration files are in `apps/api/migrations/` directory
+- Naming convention: `####_feature_name.sql` (e.g., `0002_coffees.sql`)
 - Use the migration system to manage database schema changes
+- Run migrations with: `cd apps/api && bun run scripts/migrate.ts`
+
+### Vue 3 Patterns
+
+#### Components
+
+- Use Vue 3 Composition API with `<script setup>`
+- Use TypeScript for component props and emits
+- Organize template, script, and style sections
+
+```typescript
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+
+interface Props {
+  coffeeId: number;
+}
+
+const props = defineProps<Props>();
+
+const loading = ref(false);
+const coffee = ref<Coffee | null>(null);
+
+onMounted(async () => {
+  loading.value = true;
+  coffee.value = await fetchCoffee(props.coffeeId);
+  loading.value = false;
+});
+</script>
+
+<template>
+  <div v-if="loading">Loading...</div>
+  <div v-else-if="coffee">{{ coffee.name }}</div>
+</template>
+```
+
+#### Pinia Stores
+
+- Use defineStore with id and setup function
+- Organize stores by feature/domain
+- Use TypeScript for state typing
+
+```typescript
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+
+export const useEquipmentStore = defineStore('equipment', () => {
+  const equipment = ref<Equipment[]>([]);
+  const loading = ref(false);
+
+  const grinders = computed(() =>
+    equipment.value.filter((e) => e.type === 'GRINDER'),
+  );
+
+  async function loadEquipment() {
+    loading.value = true;
+    const response = await fetch('/api/equipment');
+    equipment.value = await response.json();
+    loading.value = false;
+  }
+
+  return { equipment, loading, grinders, loadEquipment };
+});
+```
 
 ## Project Structure
 
 ```
 puck/
 ├── apps/
-│   └── api/
+│   ├── api/                          # Backend API server
+│   │   ├── migrations/               # SQL migration files
+│   │   │   ├── 0001_equipment.sql
+│   │   │   ├── 0002_coffees.sql
+│   │   │   └── 0003_extractions.sql
+│   │   ├── scripts/                  # Utility scripts
+│   │   │   └── migrate.ts            # Run database migrations
+│   │   ├── src/
+│   │   │   ├── coffees/              # Coffees CRUD endpoints
+│   │   │   │   ├── routes.ts
+│   │   │   │   ├── service.ts
+│   │   │   │   └── schema.ts
+│   │   │   ├── equipment/            # Equipment CRUD endpoints
+│   │   │   │   ├── routes.ts
+│   │   │   │   ├── service.ts
+│   │   │   │   └── schema.ts
+│   │   │   ├── application.ts        # Elysia app setup
+│   │   │   ├── database.ts           # Database connection
+│   │   │   ├── index.ts              # Entry point
+│   │   │   └── migrations.ts         # Migration system
+│   │   └── tests/                    # API tests
+│   │       ├── coffees/
+│   │       ├── equipment/
+│   │       └── helper.ts
+│   └── web/                          # Frontend Vue app
 │       ├── src/
-│       │   ├── equipment/         # Feature-specific modules
-│       │   │   ├── routes.ts      # Route definitions
-│       │   │   ├── service.ts     # Business logic
-│       │   │   └── schema.ts      # Type definitions & schemas
-│       │   ├── index.ts           # Entry point
-│       │   ├── application.ts     # Elysia app setup
-│       │   └── database.ts       # Database connection
-│       └── tests/                 # Test files
-├── packages/                      # Shared packages
-└── package.json
+│       │   ├── components/           # Vue components
+│       │   ├── router/               # Vue Router config
+│       │   ├── stores/               # Pinia stores
+│       │   ├── App.vue
+│       │   └── main.ts
+│       ├── vite.config.ts
+│       └── package.json
+├── .github/workflows/                # CI/CD workflows
+│   └── ci.yml                        # Runs lint, typecheck, tests
+├── AGENTS.md                         # This file
+├── package.json                      # Root package.json (workspaces)
+└── tsconfig.json                     # TypeScript config (API only)
 ```
+
+## Feature Implementation Status
+
+### Completed
+- ✅ Equipment CRUD (grinders, brewers)
+  - Routes: `GET /equipment`, `POST /equipment`, `GET /equipment/:id`, `DELETE /equipment/:id`
+- ✅ Coffees CRUD (roaster, name, roast date, process, notes)
+  - Routes: `GET /coffees`, `POST /coffees`, `GET /coffees/:id`, `DELETE /coffees/:id`
+
+### Pending Implementation
+- 🚧 Extractions (brewing records)
+  - Migration exists: `0003_extractions.sql`
+  - Schema exists: `apps/api/src/schema.ts`
+  - Endpoints not yet implemented
+
+## CI/CD
+
+The project uses GitHub Actions for continuous integration. The workflow (`.github/workflows/ci.yml`) checks:
+
+1. Code formatting (Prettier)
+2. TypeScript type checking (API and web app)
+3. API tests
+
+All checks must pass before merging to main/master branches.
 
 ## Important Notes
 
@@ -195,3 +330,6 @@ puck/
 - Use proper HTTP status codes (201 for created, 204 for no content, 404 for not found)
 - OpenAPI/Swagger docs available at `/swagger`
 - Database path controlled by `DATABASE_PATH` env var (defaults to `:memory:`)
+- Root tsconfig.json only type-checks `apps/api/**/*` (web app has its own tsconfig)
+- When adding new CRUD endpoints, follow the equipment/coffees module patterns
+- Migration files must be numbered sequentially (e.g., `0004_new_feature.sql`)
