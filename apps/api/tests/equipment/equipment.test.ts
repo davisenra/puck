@@ -86,4 +86,43 @@ describe('/equipment', async () => {
     const data = await response.json();
     expect(data.error).toBe('Equipment not found');
   });
+
+  test('returns only grinders when type query param is GRINDER', async () => {
+    await EquipmentService.save({ name: 'Brewer 1', type: 'BREWER' });
+    await EquipmentService.save({ name: 'Grinder 1', type: 'GRINDER' });
+    await EquipmentService.save({ name: 'Grinder 2', type: 'GRINDER' });
+
+    const response = await app.handle(new Request('http://localhost/equipment?type=GRINDER'));
+    expect(response.status).toBe(200);
+
+    const data = await response.json();
+    expect(data).toBeArrayOfSize(2);
+    expect(data[0].type).toBe('GRINDER');
+    expect(data[1].type).toBe('GRINDER');
+  });
+
+  test('returns only brewers when type query param is BREWER', async () => {
+    await EquipmentService.save({ name: 'Brewer 1', type: 'BREWER' });
+    await EquipmentService.save({ name: 'Brewer 2', type: 'BREWER' });
+    await EquipmentService.save({ name: 'Grinder 1', type: 'GRINDER' });
+
+    const response = await app.handle(new Request('http://localhost/equipment?type=BREWER'));
+    expect(response.status).toBe(200);
+
+    const data = await response.json();
+    expect(data).toBeArrayOfSize(2);
+    expect(data[0].type).toBe('BREWER');
+    expect(data[1].type).toBe('BREWER');
+  });
+
+  test('returns all equipment when no type query param provided', async () => {
+    await EquipmentService.save({ name: 'Brewer 1', type: 'BREWER' });
+    await EquipmentService.save({ name: 'Grinder 1', type: 'GRINDER' });
+
+    const response = await app.handle(new Request('http://localhost/equipment'));
+    expect(response.status).toBe(200);
+
+    const data = await response.json();
+    expect(data).toBeArrayOfSize(2);
+  });
 });

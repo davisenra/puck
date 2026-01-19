@@ -2,11 +2,29 @@ import CoffeeService from '../coffees/service';
 import { db } from '../database';
 import EquipmentService from '../equipment/service';
 import { ValidationError } from '../errors';
-import { CreateExtraction, Extraction, ExtractionList, UpdateExtraction } from './schema';
+import {
+  CreateExtraction,
+  Extraction,
+  PaginatedExtractions,
+  PaginationMeta,
+  PaginationParams,
+  UpdateExtraction,
+} from './schema';
 
 type ExtractionDatabaseRow = Record<string, any>;
 
-const SELECT_ALL_SQL = 'SELECT e.* FROM extractions e ORDER BY e.id DESC';
+const SELECT_ALL_SQL = `SELECT
+  e.*,
+  b.id as brewer_id_ref,
+  b.name as brewer_name,
+  g.id as grinder_id_ref,
+  g.name as grinder_name
+FROM extractions e
+LEFT JOIN equipment b ON e.brewer_id = b.id
+LEFT JOIN equipment g ON e.grinder_id = g.id
+ORDER BY e.id DESC`;
+
+const COUNT_SQL = 'SELECT COUNT(*) as total FROM extractions e';
 
 const INSERT_SQL =
   'INSERT INTO extractions (coffee_id, brewer_id, grinder_id, grind_setting, dose, yield, brew_time, water_temp, rating, tasting_notes, recipe_metadata, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
@@ -16,7 +34,16 @@ const DELETE_SQL = 'DELETE FROM extractions WHERE id = ?';
 const UPDATE_SQL =
   'UPDATE extractions SET dose = ?, yield = ?, brew_time = ?, water_temp = ?, rating = ?, tasting_notes = ?, recipe_metadata = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
 
-const FIND_BY_ID_SQL = 'SELECT * FROM extractions WHERE id = ?';
+const FIND_BY_ID_SQL = `SELECT
+  e.*,
+  b.id as brewer_id_ref,
+  b.name as brewer_name,
+  g.id as grinder_id_ref,
+  g.name as grinder_name
+FROM extractions e
+LEFT JOIN equipment b ON e.brewer_id = b.id
+LEFT JOIN equipment g ON e.grinder_id = g.id
+WHERE e.id = ?`;
 
 function mapDatabaseRowToSchema(e: ExtractionDatabaseRow): Extraction {
   return {
@@ -34,12 +61,40 @@ function mapDatabaseRowToSchema(e: ExtractionDatabaseRow): Extraction {
     recipeMetadata: e.recipe_metadata ? JSON.parse(e.recipe_metadata) : null,
     createdAt: new Date(e.created_at),
     updatedAt: new Date(e.updated_at),
+    brewer: {
+      id: e.brewer_id_ref,
+      name: e.brewer_name,
+    },
+    grinder: e.grinder_id_ref
+      ? {
+          id: e.grinder_id_ref,
+          name: e.grinder_name,
+        }
+      : null,
   };
 }
 
-async function listAll(): Promise<ExtractionList> {
-  const extractions = db.query(SELECT_ALL_SQL).all() as ExtractionDatabaseRow[];
-  return extractions.map(mapDatabaseRowToSchema);
+async function listAll(params?: PaginationParams): Promise<PaginatedExtractions> {
+  const page = params?.page ?? 1;
+  const perPage = params?.perPage ?? 25;
+
+  const countResult = db.query(COUNT_SQL).get() as { total: number };
+  const total = countResult.total;
+  const totalPages = Math.ceil(total / perPage);
+  const offset = (page - 1) * perPage;
+
+  const paginatedSql = `${SELECT_ALL_SQL} LIMIT ? OFFSET ?`;
+  const extractions = db.query(paginatedSql).all(perPage, offset) as ExtractionDatabaseRow[];
+  const data = extractions.map(mapDatabaseRowToSchema);
+
+  const meta: PaginationMeta = {
+    total,
+    page,
+    perPage,
+    totalPages,
+  };
+
+  return { data, meta };
 }
 
 async function save(ex: CreateExtraction): Promise<Extraction> {

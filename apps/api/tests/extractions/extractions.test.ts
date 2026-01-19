@@ -44,11 +44,18 @@ describe('/extractions', async () => {
     const response = await app.handle(new Request('http://localhost/extractions'));
     expect(response.status).toBe(200);
 
-    const data = await response.json();
-    expect(data).toBeArray();
-    expect(data).toBeArrayOfSize(1);
-    expect(data[0].dose).toBe(20);
-    expect(data[0].rating).toBe(4);
+    const json = await response.json();
+    expect(json.data).toBeArray();
+    expect(json.data).toBeArrayOfSize(1);
+    expect(json.meta.total).toBe(1);
+    expect(json.meta.page).toBe(1);
+    expect(json.meta.perPage).toBe(25);
+    expect(json.meta.totalPages).toBe(1);
+    expect(json.data[0].dose).toBe(20);
+    expect(json.data[0].rating).toBe(4);
+    expect(json.data[0].brewer.id).toBe(brewer.id);
+    expect(json.data[0].brewer.name).toBe('Test Brewer');
+    expect(json.data[0].grinder).toBeNull();
   });
 
   test('creates new extraction and returns 201', async () => {
@@ -128,9 +135,11 @@ describe('/extractions', async () => {
     const response = await app.handle(new Request('http://localhost/extractions'));
     expect(response.status).toBe(200);
 
-    const data = await response.json();
-    expect(data).toBeArray();
-    expect(data).toBeArrayOfSize(0);
+    const json = await response.json();
+    expect(json.data).toBeArray();
+    expect(json.data).toBeArrayOfSize(0);
+    expect(json.meta.total).toBe(0);
+    expect(json.meta.totalPages).toBe(0);
   });
 
   test('returns extraction by id when exists', async () => {
@@ -164,6 +173,76 @@ describe('/extractions', async () => {
     expect(data.id).toBe(created.id);
     expect(data.dose).toBe(20);
     expect(data.yield).toBe(40);
+    expect(data.brewer.id).toBe(brewer.id);
+    expect(data.brewer.name).toBe('Test Brewer');
+  });
+
+  test('returns extraction with brewer and grinder data', async () => {
+    const coffee = await CoffeeService.save({
+      roaster: 'Test Roaster',
+      name: 'Test Coffee',
+      roastDate: new Date('2024-01-01'),
+      process: 'Washed',
+      notes: 'Test notes',
+    });
+    const brewer = await EquipmentService.save({ name: 'Test Brewer', type: 'BREWER' });
+    const grinder = await EquipmentService.save({ name: 'Test Grinder', type: 'GRINDER' });
+
+    const created = await ExtractionService.save({
+      coffeeId: coffee.id,
+      brewerId: brewer.id,
+      grinderId: grinder.id,
+      grindSetting: '3',
+      dose: 20,
+      yield: 40,
+      brewTime: 30,
+      waterTemp: 90,
+      rating: 4,
+      tastingNotes: 'Good brew',
+      recipeMetadata: null,
+    });
+
+    const response = await app.handle(new Request(`http://localhost/extractions/${created.id}`));
+    expect(response.status).toBe(200);
+
+    const data = await response.json();
+    expect(data.brewer.id).toBe(brewer.id);
+    expect(data.brewer.name).toBe('Test Brewer');
+    expect(data.grinder.id).toBe(grinder.id);
+    expect(data.grinder.name).toBe('Test Grinder');
+  });
+
+  test('returns extraction with null grinder when not set', async () => {
+    const coffee = await CoffeeService.save({
+      roaster: 'Test Roaster',
+      name: 'Test Coffee',
+      roastDate: new Date('2024-01-01'),
+      process: 'Washed',
+      notes: 'Test notes',
+    });
+    const brewer = await EquipmentService.save({ name: 'Test Brewer', type: 'BREWER' });
+
+    const created = await ExtractionService.save({
+      coffeeId: coffee.id,
+      brewerId: brewer.id,
+      grinderId: null,
+      grindSetting: null,
+      dose: 20,
+      yield: 40,
+      brewTime: 30,
+      waterTemp: null,
+      rating: 4,
+      tastingNotes: 'Good brew',
+      recipeMetadata: null,
+    });
+
+    const response = await app.handle(new Request(`http://localhost/extractions/${created.id}`));
+    expect(response.status).toBe(200);
+
+    const data = await response.json();
+    expect(data.brewer.id).toBe(brewer.id);
+    expect(data.brewer.name).toBe('Test Brewer');
+    expect(data.grinder).toBeNull();
   });
 
   test('returns 404 when extraction by id does not exist', async () => {
@@ -466,5 +545,151 @@ describe('/extractions', async () => {
     expect(response.status).toBe(400);
     const data = await response.json();
     expect(data.error).toBe('Coffee not found');
+  });
+
+  test('returns first page with default pagination (25 items)', async () => {
+    const coffee = await CoffeeService.save({
+      roaster: 'Test Roaster',
+      name: 'Test Coffee',
+      roastDate: new Date('2024-01-01'),
+      process: 'Washed',
+      notes: 'Test notes',
+    });
+    const brewer = await EquipmentService.save({ name: 'Test Brewer', type: 'BREWER' });
+
+    for (let i = 0; i < 30; i++) {
+      await ExtractionService.save({
+        coffeeId: coffee.id,
+        brewerId: brewer.id,
+        grinderId: null,
+        grindSetting: null,
+        dose: 20,
+        yield: 40,
+        brewTime: 30,
+        waterTemp: null,
+        rating: 4,
+        tastingNotes: 'Good brew',
+        recipeMetadata: null,
+      });
+    }
+
+    const response = await app.handle(new Request('http://localhost/extractions'));
+    expect(response.status).toBe(200);
+
+    const json = await response.json();
+    expect(json.data).toBeArrayOfSize(25);
+    expect(json.meta.total).toBe(30);
+    expect(json.meta.page).toBe(1);
+    expect(json.meta.perPage).toBe(25);
+    expect(json.meta.totalPages).toBe(2);
+  });
+
+  test('returns correct page when page param provided', async () => {
+    const coffee = await CoffeeService.save({
+      roaster: 'Test Roaster',
+      name: 'Test Coffee',
+      roastDate: new Date('2024-01-01'),
+      process: 'Washed',
+      notes: 'Test notes',
+    });
+    const brewer = await EquipmentService.save({ name: 'Test Brewer', type: 'BREWER' });
+
+    for (let i = 0; i < 30; i++) {
+      await ExtractionService.save({
+        coffeeId: coffee.id,
+        brewerId: brewer.id,
+        grinderId: null,
+        grindSetting: null,
+        dose: 20,
+        yield: 40,
+        brewTime: 30,
+        waterTemp: null,
+        rating: 4,
+        tastingNotes: 'Good brew',
+        recipeMetadata: null,
+      });
+    }
+
+    const response = await app.handle(new Request('http://localhost/extractions?page=2'));
+    expect(response.status).toBe(200);
+
+    const json = await response.json();
+    expect(json.data).toBeArrayOfSize(5);
+    expect(json.meta.total).toBe(30);
+    expect(json.meta.page).toBe(2);
+    expect(json.meta.perPage).toBe(25);
+    expect(json.meta.totalPages).toBe(2);
+  });
+
+  test('returns correct items when perPage param provided', async () => {
+    const coffee = await CoffeeService.save({
+      roaster: 'Test Roaster',
+      name: 'Test Coffee',
+      roastDate: new Date('2024-01-01'),
+      process: 'Washed',
+      notes: 'Test notes',
+    });
+    const brewer = await EquipmentService.save({ name: 'Test Brewer', type: 'BREWER' });
+
+    for (let i = 0; i < 10; i++) {
+      await ExtractionService.save({
+        coffeeId: coffee.id,
+        brewerId: brewer.id,
+        grinderId: null,
+        grindSetting: null,
+        dose: 20,
+        yield: 40,
+        brewTime: 30,
+        waterTemp: null,
+        rating: 4,
+        tastingNotes: 'Good brew',
+        recipeMetadata: null,
+      });
+    }
+
+    const response = await app.handle(new Request('http://localhost/extractions?perPage=5'));
+    expect(response.status).toBe(200);
+
+    const json = await response.json();
+    expect(json.data).toBeArrayOfSize(5);
+    expect(json.meta.total).toBe(10);
+    expect(json.meta.page).toBe(1);
+    expect(json.meta.perPage).toBe(5);
+    expect(json.meta.totalPages).toBe(2);
+  });
+
+  test('returns empty array for page beyond available data', async () => {
+    const coffee = await CoffeeService.save({
+      roaster: 'Test Roaster',
+      name: 'Test Coffee',
+      roastDate: new Date('2024-01-01'),
+      process: 'Washed',
+      notes: 'Test notes',
+    });
+    const brewer = await EquipmentService.save({ name: 'Test Brewer', type: 'BREWER' });
+
+    await ExtractionService.save({
+      coffeeId: coffee.id,
+      brewerId: brewer.id,
+      grinderId: null,
+      grindSetting: null,
+      dose: 20,
+      yield: 40,
+      brewTime: 30,
+      waterTemp: null,
+      rating: 4,
+      tastingNotes: 'Good brew',
+      recipeMetadata: null,
+    });
+
+    const response = await app.handle(new Request('http://localhost/extractions?page=999'));
+    expect(response.status).toBe(200);
+
+    const json = await response.json();
+    expect(json.data).toBeArrayOfSize(0);
+    expect(json.meta.total).toBe(1);
+    expect(json.meta.page).toBe(999);
+    expect(json.meta.perPage).toBe(25);
+    expect(json.meta.totalPages).toBe(1);
   });
 });

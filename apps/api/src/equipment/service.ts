@@ -3,7 +3,8 @@ import { CreateEquipment, Equipment, EquipmentList } from './schema';
 
 type EquipmentDatabaseRow = Record<string, any>;
 
-const SELECT_ALL_SQL = 'SELECT e.* FROM equipment e ORDER BY e.id DESC';
+const SELECT_ALL_SQL = 'SELECT e.* FROM equipment e';
+const ORDER_BY_SQL = ' ORDER BY e.id DESC';
 
 const INSERT_SQL =
   'INSERT INTO equipment (name, type, created_at, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
@@ -22,8 +23,18 @@ function mapDatabaseRowToSchema(e: EquipmentDatabaseRow): Equipment {
   };
 }
 
-async function listAll(): Promise<EquipmentList> {
-  const equipment = db.query(SELECT_ALL_SQL).all() as EquipmentDatabaseRow[];
+async function listAll(type?: string): Promise<EquipmentList> {
+  let sql = SELECT_ALL_SQL;
+  const params: any[] = [];
+
+  if (type) {
+    sql += ' WHERE e.type = ?';
+    params.push(type);
+  }
+
+  sql += ORDER_BY_SQL;
+
+  const equipment = db.query(sql).all(...params) as EquipmentDatabaseRow[];
   return equipment.map(mapDatabaseRowToSchema);
 }
 

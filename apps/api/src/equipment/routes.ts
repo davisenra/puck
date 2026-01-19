@@ -1,15 +1,21 @@
 import { Elysia, t } from 'elysia';
 
-import { CreateEquipmentSchema, EquipmentListSchema, EquipmentSchema } from './schema';
+import {
+  CreateEquipmentSchema,
+  EquipmentFilterParamsSchema,
+  EquipmentListSchema,
+  EquipmentSchema,
+} from './schema';
 import EquipmentService from './service';
 
 export default new Elysia({ prefix: '/equipment' })
   .get(
     '/',
-    async () => {
-      return await EquipmentService.listAll();
+    async ({ query }) => {
+      return await EquipmentService.listAll(query.type);
     },
     {
+      query: EquipmentFilterParamsSchema,
       response: {
         200: EquipmentListSchema,
       },

@@ -2,8 +2,9 @@ import { Elysia, t } from 'elysia';
 
 import {
   CreateExtractionSchema,
-  ExtractionListSchema,
   ExtractionSchema,
+  PaginatedExtractionsSchema,
+  PaginationParamsSchema,
   UpdateExtractionSchema,
 } from './schema';
 import ExtractionService from './service';
@@ -11,12 +12,13 @@ import ExtractionService from './service';
 export default new Elysia({ prefix: '/extractions' })
   .get(
     '/',
-    async () => {
-      return await ExtractionService.listAll();
+    async ({ query }) => {
+      return await ExtractionService.listAll(query);
     },
     {
+      query: PaginationParamsSchema,
       response: {
-        200: ExtractionListSchema,
+        200: PaginatedExtractionsSchema,
       },
     },
   )
