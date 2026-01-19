@@ -1,5 +1,5 @@
-import { CreateEquipment, Equipment, EquipmentList } from './schema';
 import { db } from '../database';
+import { CreateEquipment, Equipment, EquipmentList } from './schema';
 
 type EquipmentDatabaseRow = Record<string, any>;
 

@@ -1,5 +1,5 @@
-import { Coffee, CoffeeList, CreateCoffee, UpdateCoffee } from './schema';
 import { db } from '../database';
+import { Coffee, CoffeeList, CreateCoffee, UpdateCoffee } from './schema';
 
 type CoffeeDatabaseRow = Record<string, any>;
 

@@ -1,6 +1,7 @@
-import Database from 'bun:sqlite';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
+
+import Database from 'bun:sqlite';
 
 type Migration = {
   name: string;

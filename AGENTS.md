@@ -10,7 +10,6 @@ This guide provides essential information for coding agents working in the Puck 
 - `bun run dev` - Start all apps in dev mode (API on 3000, web on 5173)
 - `bun run dev:api` - Start API server in dev mode (port 3000)
 - `bun run dev:web` - Start web app in dev mode (port 5173)
-- `bun run lint` - Check code formatting with Prettier
 
 ### Testing Commands
 
@@ -22,9 +21,12 @@ This guide provides essential information for coding agents working in the Puck 
 
 - `bun run build` - Build the API package (output to apps/api/dist)
 
-### Type Checking
+### Type Checking & Linting
 
 - `bunx tsc --noEmit` - Type check API only (root tsconfig checks apps/api/\*_/_)
+- `bun run lint` - Run all linting checks (code style + API + web)
+- `bun run lint:code-style` - Check code formatting with Prettier
+- `bun run lint:api` - ESLint for API
 - `bun run lint:web` - Type check web app (uses vue-tsc)
 
 ### Database Commands
@@ -99,12 +101,26 @@ export type Equipment = typeof EquipmentSchema.static;
 - Return error objects with descriptive messages
 - Use `set.status` for setting response status
 - Handle missing resources with 404 and clear error messages
+- Throw custom error classes (ApplicationError, NotFoundError, ValidationError) from services
+- Global error handler in `application.ts` automatically catches ApplicationError instances
 
 ```typescript
+// In routes
 const equipment = await EquipmentService.find(Number(id));
 if (!equipment) {
   set.status = 404;
   return { error: 'Equipment not found' };
+}
+
+// In services (preferred approach for complex validation)
+import { NotFoundError } from '../errors';
+
+function find(id: number): Equipment | undefined {
+  const row = db.query('SELECT * FROM equipment WHERE id = ?').get(id);
+  if (!row) {
+    throw new NotFoundError('Equipment not found');
+  }
+  return mapDatabaseRowToSchema(row);
 }
 ```
 
@@ -262,7 +278,8 @@ puck/
 │   │   ├── migrations/               # SQL migration files
 │   │   │   ├── 0001_equipment.sql
 │   │   │   ├── 0002_coffees.sql
-│   │   │   └── 0003_extractions.sql
+│   │   │   ├── 0003_extractions.sql
+│   │   │   └── 0004_add_archived_to_coffees.sql
 │   │   ├── scripts/                  # Utility scripts
 │   │   │   └── migrate.ts            # Run database migrations
 │   │   ├── src/
@@ -274,19 +291,40 @@ puck/
 │   │   │   │   ├── routes.ts
 │   │   │   │   ├── service.ts
 │   │   │   │   └── schema.ts
+│   │   │   ├── extractions/          # Extractions CRUD endpoints
+│   │   │   │   ├── routes.ts
+│   │   │   │   ├── service.ts
+│   │   │   │   └── schema.ts
 │   │   │   ├── application.ts        # Elysia app setup
 │   │   │   ├── database.ts           # Database connection
+│   │   │   ├── errors.ts             # Custom error classes
 │   │   │   ├── index.ts              # Entry point
 │   │   │   └── migrations.ts         # Migration system
 │   │   └── tests/                    # API tests
 │   │       ├── coffees/
 │   │       ├── equipment/
+│   │       ├── extractions/
 │   │       └── helper.ts
 │   └── web/                          # Frontend Vue app
 │       ├── src/
 │       │   ├── components/           # Vue components
+│       │   │   ├── modal/           # Modal components
+│       │   │   │   ├── modals/
+│       │   │   │   │   ├── LogExtractionModal.vue
+│       │   │   │   │   └── DeleteConfirmModal.vue
+│       │   │   │   └── ModalContainer.vue
+│       │   │   ├── BaseModal.vue
+│       │   │   ├── ExtractionCard.vue
+│       │   │   ├── CoffeeCard.vue
+│       │   │   ├── EquipmentCard.vue
+│       │   │   └── Navbar.vue
+│       │   ├── composables/          # Vue composables
+│       │   │   └── useModal.ts
 │       │   ├── router/               # Vue Router config
 │       │   ├── stores/               # Pinia stores
+│       │   │   └── modal.ts
+│       │   ├── views/                # Page views
+│       │   │   └── Dashboard.vue
 │       │   ├── App.vue
 │       │   └── main.ts
 │       ├── vite.config.ts
@@ -304,15 +342,23 @@ puck/
 
 - ✅ Equipment CRUD (grinders, brewers)
   - Routes: `GET /equipment`, `POST /equipment`, `GET /equipment/:id`, `DELETE /equipment/:id`
-- ✅ Coffees CRUD (roaster, name, roast date, process, notes)
-  - Routes: `GET /coffees`, `POST /coffees`, `GET /coffees/:id`, `DELETE /coffees/:id`
+- ✅ Coffees CRUD (roaster, name, roast date, process, notes, archived)
+  - Routes: `GET /coffees`, `POST /coffees`, `GET /coffees/:id`, `PUT /coffees/:id`, `DELETE /coffees/:id`
+  - Includes soft delete via `archived` boolean field
+- ✅ Extractions CRUD (brewing records)
+  - Routes: `GET /extractions`, `POST /extractions`, `GET /extractions/:id`, `PUT /extractions/:id`, `DELETE /extractions/:id`
+  - Fields: coffeeId, brewerId, grinderId, grindSetting, dose, yield, brewTime, waterTemp, rating, tastingNotes, recipeMetadata
+- ✅ Centralized error handling
+  - Custom error classes: ApplicationError, NotFoundError, ValidationError
+  - Global error handler in application.ts
+- ✅ Frontend modal system
+  - Modal components: BaseModal, ModalContainer, LogExtractionModal, DeleteConfirmModal
+  - Composable: useModal
+  - Store: modal.ts
 
 ### Pending Implementation
 
-- 🚧 Extractions (brewing records)
-  - Migration exists: `0003_extractions.sql`
-  - Schema exists: `apps/api/src/schema.ts`
-  - Endpoints not yet implemented
+None currently - all planned features are implemented.
 
 ## CI/CD
 

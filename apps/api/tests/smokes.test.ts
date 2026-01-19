@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+
 import { createElysiaApplication } from '../src/application';
 
 describe('smoke test suite', async () => {

@@ -1,5 +1,6 @@
 import { Elysia, t } from 'elysia';
-import { CreateCoffeeSchema, UpdateCoffeeSchema, CoffeeListSchema, CoffeeSchema } from './schema';
+
+import { CoffeeListSchema, CoffeeSchema, CreateCoffeeSchema, UpdateCoffeeSchema } from './schema';
 import CoffeeService from './service';
 
 export default new Elysia({ prefix: '/coffees' })

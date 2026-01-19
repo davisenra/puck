@@ -1,9 +1,10 @@
-import { describe, test, expect, beforeEach, afterEach } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+
 import { createElysiaApplication } from '../../src/application';
-import { setupTestDatabase, teardownTestDatabase } from '../helper';
-import EquipmentService from '../../src/equipment/service';
 import CoffeeService from '../../src/coffees/service';
+import EquipmentService from '../../src/equipment/service';
 import ExtractionService from '../../src/extractions/service';
+import { setupTestDatabase, teardownTestDatabase } from '../helper';
 
 describe('/extractions', async () => {
   const app = await createElysiaApplication();
@@ -316,7 +317,7 @@ describe('/extractions', async () => {
 
     expect(response.status).toBe(400);
     const data = await response.json();
-    expect(data.error).toBe('Brewer must be of type BREWER');
+    expect(data.error).toBe('Equipment must be of type BREWER');
   });
 
   test('returns 400 when grinder_id does not exist', async () => {
@@ -387,7 +388,7 @@ describe('/extractions', async () => {
 
     expect(response.status).toBe(400);
     const data = await response.json();
-    expect(data.error).toBe('Grinder must be of type GRINDER');
+    expect(data.error).toBe('Equipment must be of type GRINDER');
   });
 
   test('creates extraction with archived coffee', async () => {

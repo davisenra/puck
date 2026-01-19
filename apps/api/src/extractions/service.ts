@@ -1,8 +1,8 @@
-import { CreateExtraction, Extraction, ExtractionList, UpdateExtraction } from './schema';
+import CoffeeService from '../coffees/service';
 import { db } from '../database';
 import EquipmentService from '../equipment/service';
-import CoffeeService from '../coffees/service';
 import { ValidationError } from '../errors';
+import { CreateExtraction, Extraction, ExtractionList, UpdateExtraction } from './schema';
 
 type ExtractionDatabaseRow = Record<string, any>;
 

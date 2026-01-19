@@ -28,14 +28,19 @@ puck/
 │   │   ├── src/
 │   │   │   ├── equipment/      # Equipment CRUD endpoints
 │   │   │   ├── coffees/        # Coffees CRUD endpoints
-│   │   │   ├── application.ts  # Elysia app setup
+│   │   │   ├── extractions/    # Extractions CRUD endpoints
+│   │   │   ├── application.ts  # Elysia app setup with error handler
 │   │   │   ├── database.ts     # Database connection
+│   │   │   ├── errors.ts       # Centralized error classes
 │   │   │   └── migrations.ts   # Migration system
 │   │   ├── migrations/         # SQL migration files
 │   │   └── tests/              # API tests
 │   └── web/                    # Frontend Vue app
 │       ├── src/
-│       │   ├── stores/         # Pinia stores
+│       │   ├── components/     # Vue components (cards, modals, navbar)
+│       │   ├── composables/    # Vue composables (useModal)
+│       │   ├── stores/         # Pinia stores (modal)
+│       │   ├── views/          # Page views (Dashboard)
 │       │   └── router/         # Vue Router config
 │       └── package.json
 ├── .github/workflows/          # CI/CD workflows
@@ -49,10 +54,12 @@ puck/
 
 - ✅ Equipment CRUD (grinders, brewers)
 - ✅ Coffees CRUD (roaster, name, roast date, process, notes)
-
-### Pending Implementation
-
-- 🚧 Extractions (brewing records with equipment and coffee relationships)
+  - Includes soft delete via `archived` field
+- ✅ Extractions CRUD (brewing records with equipment and coffee relationships)
+  - Rating (1-5 scale), dose, yield, brew time, water temp
+  - Optional fields: grind setting, tasting notes, recipe metadata
+- ✅ Centralized error handling (ApplicationError, NotFoundError, ValidationError)
+- ✅ Modal system for frontend (log extraction, delete confirm)
 
 ## Getting Started
 
@@ -96,14 +103,16 @@ bun run dev:web
 # Run API tests
 bun run test:api
 
-# Check code formatting
+# Run all linting (code style + API typecheck + web typecheck)
 bun run lint
+
+# Run individual lint checks
+bun run lint:code-style  # Prettier code style
+bun run lint:api         # ESLint for API
+bun run lint:web         # Vue TSC typecheck for web
 
 # Type checking (API only)
 bunx tsc --noEmit
-
-# Type checking (web app)
-bun run lint:web
 ```
 
 ### API Development
@@ -125,7 +134,8 @@ bun run lint:web
 The project uses GitHub Actions for continuous integration. The workflow checks:
 
 - Code formatting (Prettier)
-- TypeScript type checking (API and web app)
+- ESLint (API)
+- TypeScript type checking (web app)
 - API tests
 
 See `.github/workflows/ci.yml` for details.

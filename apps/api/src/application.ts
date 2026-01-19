@@ -1,14 +1,15 @@
-import { Elysia } from 'elysia';
 import { openapi } from '@elysiajs/openapi';
-import equipmentRoutes from './equipment/routes';
+import { Elysia } from 'elysia';
+
 import coffeesRoutes from './coffees/routes';
+import equipmentRoutes from './equipment/routes';
+import { ApplicationError } from './errors';
 import extractionsRoutes from './extractions/routes';
-import { HttpError } from './errors';
 
 export async function createElysiaApplication() {
   return new Elysia()
     .onError(({ error, set }) => {
-      if (error instanceof HttpError) {
+      if (error instanceof ApplicationError) {
         set.status = error.status;
         return { error: error.message };
       }

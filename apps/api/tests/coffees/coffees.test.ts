@@ -1,7 +1,8 @@
-import { describe, test, expect, beforeEach, afterEach } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+
 import { createElysiaApplication } from '../../src/application';
-import { setupTestDatabase, teardownTestDatabase } from '../helper';
 import CoffeeService from '../../src/coffees/service';
+import { setupTestDatabase, teardownTestDatabase } from '../helper';
 
 describe('/coffees', async () => {
   const app = await createElysiaApplication();

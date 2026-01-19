@@ -1,9 +1,10 @@
 import { Elysia, t } from 'elysia';
+
 import {
   CreateExtractionSchema,
-  UpdateExtractionSchema,
   ExtractionListSchema,
   ExtractionSchema,
+  UpdateExtractionSchema,
 } from './schema';
 import ExtractionService from './service';
 
