@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { useModal } from "@/composables/useModal";
 
-const { openDeleteModal } = useModal();
+const { openDeleteModal, openAddEquipmentModal } = useModal();
 
 const equipment = ref([
   { id: 1, name: "Baratza Sette 270", type: "GRINDER" },
@@ -19,6 +19,19 @@ async function handleDelete(id: number, name: string) {
     console.log("Deleting equipment:", id);
   }
 }
+
+async function handleAddEquipment() {
+  const result = await openAddEquipmentModal();
+
+  if (result?.equipment) {
+    const newId = Math.max(...equipment.value.map((e) => e.id), 0) + 1;
+    equipment.value.push({
+      id: newId,
+      name: result.equipment.name,
+      type: result.equipment.type,
+    });
+  }
+}
 </script>
 
 <template>
@@ -26,7 +39,7 @@ async function handleDelete(id: number, name: string) {
     <div class="card-body">
       <div class="mb-4 flex items-center justify-between">
         <h2 class="card-title">Equipment</h2>
-        <button class="btn btn-sm">
+        <button class="btn btn-sm" @click="handleAddEquipment">
           <span>+ Add Equipment</span>
         </button>
       </div>

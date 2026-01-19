@@ -29,8 +29,10 @@ function handleCancel(): void {
       >? This action cannot be undone.
     </p>
     <div class="modal-action">
-      <button class="btn" @click="handleCancel">Cancel</button>
-      <button class="btn btn-error" @click="handleConfirm">Delete</button>
+      <button class="btn btn-sm" @click="handleCancel">Cancel</button>
+      <button class="btn btn-error btn-sm" @click="handleConfirm">
+        Delete
+      </button>
     </div>
   </BaseModal>
 </template>

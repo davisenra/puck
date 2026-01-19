@@ -1,6 +1,8 @@
 import { useModalStore } from "@/stores/modal";
 import DeleteConfirmModal from "@/components/modal/modals/DeleteConfirmModal.vue";
 import LogExtractionModal from "@/components/modal/modals/LogExtractionModal.vue";
+import AddEquipmentModal from "@/components/modal/modals/AddEquipmentModal.vue";
+import AddCoffeeModal from "@/components/modal/modals/AddCoffeeModal.vue";
 
 export function useModal() {
   const modalStore = useModalStore();
@@ -37,6 +39,24 @@ export function useModal() {
     return openModal(LogExtractionModal, options || {});
   }
 
+  async function openAddEquipmentModal(options?: Record<string, any>): Promise<{
+    equipment: { name: string; type: "GRINDER" | "BREWER" };
+  } | null> {
+    return openModal(AddEquipmentModal, options || {});
+  }
+
+  async function openAddCoffeeModal(options?: Record<string, any>): Promise<{
+    coffee: {
+      roaster: string;
+      name: string;
+      roastDate: string | null;
+      process: string | null;
+      notes: string | null;
+    };
+  } | null> {
+    return openModal(AddCoffeeModal, options || {});
+  }
+
   return {
     openModal,
     closeModal,
@@ -44,5 +64,7 @@ export function useModal() {
     closeTopModal,
     openDeleteModal,
     openLogExtractionModal,
+    openAddEquipmentModal,
+    openAddCoffeeModal,
   };
 }

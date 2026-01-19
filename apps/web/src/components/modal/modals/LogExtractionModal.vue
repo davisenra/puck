@@ -49,7 +49,7 @@ function updateTimeDisplay(): void {
         <label class="label">
           <span class="label-text">Coffee</span>
         </label>
-        <select v-model="form.coffeeId" class="select select-bordered">
+        <select v-model="form.coffeeId" class="select select-bordered w-full">
           <option disabled value="">Select coffee</option>
           <option value="1">Ethiopia Gedeb</option>
           <option value="2">House Blend</option>
@@ -61,7 +61,7 @@ function updateTimeDisplay(): void {
           <label class="label">
             <span class="label-text">Brewer</span>
           </label>
-          <select v-model="form.brewerId" class="select select-bordered">
+          <select v-model="form.brewerId" class="select select-bordered w-full">
             <option disabled value="">Select brewer</option>
             <option value="1">V60</option>
             <option value="2">Aeropress</option>
@@ -72,7 +72,10 @@ function updateTimeDisplay(): void {
           <label class="label">
             <span class="label-text">Grinder</span>
           </label>
-          <select v-model="form.grinderId" class="select select-bordered">
+          <select
+            v-model="form.grinderId"
+            class="select select-bordered w-full"
+          >
             <option disabled value="">Select grinder</option>
             <option value="1">Baratza Sette 270</option>
           </select>
@@ -87,7 +90,7 @@ function updateTimeDisplay(): void {
           <input
             v-model.number="form.grinderClicks"
             type="number"
-            class="input input-bordered"
+            class="input input-bordered w-full"
             min="0"
           />
         </div>
@@ -96,7 +99,11 @@ function updateTimeDisplay(): void {
           <label class="label">
             <span class="label-text">Time</span>
           </label>
-          <input v-model="form.time" type="text" class="input input-bordered" />
+          <input
+            v-model="form.time"
+            type="text"
+            class="input input-bordered w-full"
+          />
         </div>
       </div>
 
@@ -108,7 +115,7 @@ function updateTimeDisplay(): void {
           <input
             v-model.number="form.dose"
             type="number"
-            class="input input-bordered"
+            class="input input-bordered w-full"
             min="0"
             step="0.1"
           />
@@ -121,7 +128,7 @@ function updateTimeDisplay(): void {
           <input
             v-model.number="form.yield"
             type="number"
-            class="input input-bordered"
+            class="input input-bordered w-full"
             min="0"
             step="0.1"
           />
@@ -151,7 +158,7 @@ function updateTimeDisplay(): void {
         </label>
         <textarea
           v-model="form.notes"
-          class="textarea textarea-bordered"
+          class="textarea textarea-bordered w-full"
           placeholder="Tasting notes, observations..."
           rows="3"
         ></textarea>
@@ -159,8 +166,8 @@ function updateTimeDisplay(): void {
     </div>
 
     <div class="modal-action">
-      <button class="btn" @click="handleCancel">Cancel</button>
-      <button class="btn btn-primary" @click="handleSave">
+      <button class="btn btn-sm" @click="handleCancel">Cancel</button>
+      <button class="btn btn-primary btn-sm" @click="handleSave">
         Save Extraction
       </button>
     </div>

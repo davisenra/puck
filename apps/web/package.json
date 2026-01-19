@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
-    "format": "prettier --write --experimental-cli src/"
+    "format": "prettier --write --experimental-cli src/",
+    "test": "vitest"
   },
   "dependencies": {
     "@puck/api": "workspace:*",
@@ -27,12 +28,14 @@
     "@types/node": "^24.10.4",
     "@vitejs/plugin-vue": "^6.0.3",
     "@vue/tsconfig": "^0.8.1",
+    "@vue/test-utils": "^2.4.6",
     "daisyui": "^5.5.14",
     "npm-run-all2": "^8.0.4",
     "tailwindcss": "^4.1.18",
     "typescript": "~5.9.3",
     "vite": "beta",
     "vite-plugin-vue-devtools": "^8.0.5",
+    "vitest": "^3.0.9",
     "vue-tsc": "^3.2.2"
   }
 }
