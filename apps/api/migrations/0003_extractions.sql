@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS extractions (
   yield REAL NOT NULL,
   brew_time REAL NOT NULL,
   water_temp REAL,
-  rating REAL NOT NULL CHECK(rating >= 1 AND rating <= 10),
+  rating REAL NOT NULL CHECK(rating >= 1 AND rating <= 5),
   tasting_notes TEXT,
   recipe_metadata TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

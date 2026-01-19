@@ -30,6 +30,7 @@ export default new Elysia({ prefix: '/extractions' })
       body: CreateExtractionSchema,
       response: {
         201: ExtractionSchema,
+        400: t.Object({ error: t.String() }),
       },
     },
   )
@@ -70,6 +71,7 @@ export default new Elysia({ prefix: '/extractions' })
       body: UpdateExtractionSchema,
       response: {
         200: ExtractionSchema,
+        400: t.Object({ error: t.String() }),
         404: t.Object({ error: t.String() }),
       },
     },

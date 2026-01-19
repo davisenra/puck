@@ -46,7 +46,7 @@ async function save(coffee: CreateCoffee): Promise<Coffee> {
       coffee.archived ? 1 : 0,
     );
   const id = result.lastInsertRowid;
-  const row = db.query('SELECT * FROM coffees WHERE id = ?').get(id) as CoffeeDatabaseRow;
+  const row = db.query(FIND_BY_ID_SQL).get(id) as CoffeeDatabaseRow;
   return mapDatabaseRowToSchema(row);
 }
 

@@ -1,5 +1,8 @@
 import { CreateExtraction, Extraction, ExtractionList, UpdateExtraction } from './schema';
 import { db } from '../database';
+import EquipmentService from '../equipment/service';
+import CoffeeService from '../coffees/service';
+import { ValidationError } from '../errors';
 
 type ExtractionDatabaseRow = Record<string, any>;
 
@@ -40,6 +43,29 @@ async function listAll(): Promise<ExtractionList> {
 }
 
 async function save(ex: CreateExtraction): Promise<Extraction> {
+  const coffee = await CoffeeService.find(ex.coffeeId);
+  if (!coffee) {
+    throw new ValidationError('Coffee not found');
+  }
+
+  const brewer = await EquipmentService.find(ex.brewerId);
+  if (!brewer) {
+    throw new ValidationError('Brewer not found');
+  }
+  if (brewer.type !== 'BREWER') {
+    throw new ValidationError('Equipment must be of type BREWER');
+  }
+
+  if (ex.grinderId !== null) {
+    const grinder = await EquipmentService.find(ex.grinderId);
+    if (!grinder) {
+      throw new ValidationError('Grinder not found');
+    }
+    if (grinder.type !== 'GRINDER') {
+      throw new ValidationError('Equipment must be of type GRINDER');
+    }
+  }
+
   const result = db
     .query(INSERT_SQL)
     .run(
@@ -56,7 +82,7 @@ async function save(ex: CreateExtraction): Promise<Extraction> {
       ex.recipeMetadata ? JSON.stringify(ex.recipeMetadata) : null,
     );
   const id = result.lastInsertRowid;
-  const row = db.query('SELECT * FROM extractions WHERE id = ?').get(id) as ExtractionDatabaseRow;
+  const row = db.query(FIND_BY_ID_SQL).get(id) as ExtractionDatabaseRow;
   return mapDatabaseRowToSchema(row);
 }
 
@@ -68,6 +94,29 @@ async function update(id: number, updates: UpdateExtraction): Promise<Extraction
   const existing = await find(id);
   if (!existing) {
     return undefined;
+  }
+
+  const coffee = await CoffeeService.find(existing.coffeeId);
+  if (!coffee) {
+    throw new ValidationError('Coffee not found');
+  }
+
+  const brewer = await EquipmentService.find(existing.brewerId);
+  if (!brewer) {
+    throw new ValidationError('Brewer not found');
+  }
+  if (brewer.type !== 'BREWER') {
+    throw new ValidationError('Equipment must be of type BREWER');
+  }
+
+  if (existing.grinderId !== null) {
+    const grinder = await EquipmentService.find(existing.grinderId);
+    if (!grinder) {
+      throw new ValidationError('Grinder not found');
+    }
+    if (grinder.type !== 'GRINDER') {
+      throw new ValidationError('Equipment must be of type GRINDER');
+    }
   }
 
   db.query(UPDATE_SQL).run(

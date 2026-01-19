@@ -30,7 +30,7 @@ async function listAll(): Promise<EquipmentList> {
 async function save(eq: CreateEquipment): Promise<Equipment> {
   const result = db.query(INSERT_SQL).run(eq.name, eq.type);
   const id = result.lastInsertRowid;
-  const row = db.query('SELECT * FROM equipment WHERE id = ?').get(id) as EquipmentDatabaseRow;
+  const row = db.query(FIND_BY_ID_SQL).get(id) as EquipmentDatabaseRow;
   return mapDatabaseRowToSchema(row);
 }
 

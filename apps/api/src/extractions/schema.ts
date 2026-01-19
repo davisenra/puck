@@ -10,7 +10,7 @@ export const ExtractionSchema = t.Object({
   yield: t.Numeric(),
   brewTime: t.Numeric(),
   waterTemp: t.Nullable(t.Numeric()),
-  rating: t.Numeric({ minimum: 1, maximum: 10 }),
+  rating: t.Numeric({ minimum: 1, maximum: 5 }),
   tastingNotes: t.Nullable(t.String()),
   recipeMetadata: t.Nullable(t.Object({}, {})),
   createdAt: t.Date(),
@@ -26,7 +26,7 @@ export const CreateExtractionSchema = t.Object({
   yield: t.Numeric(),
   brewTime: t.Numeric(),
   waterTemp: t.Nullable(t.Numeric()),
-  rating: t.Numeric({ minimum: 1, maximum: 10 }),
+  rating: t.Numeric({ minimum: 1, maximum: 5 }),
   tastingNotes: t.Nullable(t.String()),
   recipeMetadata: t.Nullable(t.Object({}, {})),
 });
