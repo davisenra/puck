@@ -57,7 +57,7 @@ async function handleAddCoffee() {
           <span>+ Add Coffee</span>
         </button>
       </div>
-      <div>
+      <div class="overflow-x-auto">
         <table class="table-sm table">
           <thead>
             <tr>

@@ -43,7 +43,7 @@ async function handleAddEquipment() {
           <span>+ Add Equipment</span>
         </button>
       </div>
-      <div>
+      <div class="overflow-x-auto">
         <table class="table-sm table">
           <thead>
             <tr>

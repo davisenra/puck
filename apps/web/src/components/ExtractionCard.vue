@@ -43,7 +43,7 @@ async function handleDelete(id: number, coffeeName: string) {
   <div id="extractions" class="card bg-base-100 shadow">
     <div class="card-body">
       <h2 class="card-title mb-4">Extractions</h2>
-      <div>
+      <div class="overflow-x-auto">
         <table class="table-sm table">
           <thead>
             <tr>
