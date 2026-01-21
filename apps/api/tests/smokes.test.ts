@@ -10,4 +10,14 @@ describe('smoke test suite', async () => {
     expect(response.status).toBe(200);
     expect(await response.text()).toBe('☕');
   });
+
+  test('openapi docs', async () => {
+    const response = await app.handle(new Request('http://localhost/openapi'));
+    expect(response.status).toBe(200);
+  });
+
+  test('openapi json schema', async () => {
+    const response = await app.handle(new Request('http://localhost/openapi/json'));
+    expect(response.status).toBe(200);
+  });
 });
