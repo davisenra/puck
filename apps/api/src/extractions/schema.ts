@@ -5,11 +5,16 @@ export const EquipmentReferenceSchema = t.Object({
   name: t.String(),
 });
 
+export const CoffeeReferenceSchema = t.Object({
+  id: t.Numeric(),
+  name: t.String(),
+});
+
 export const ExtractionSchema = t.Object({
   id: t.Numeric(),
-  coffeeId: t.Numeric(),
-  brewerId: t.Numeric(),
-  grinderId: t.Nullable(t.Numeric()),
+  coffee: CoffeeReferenceSchema,
+  brewer: EquipmentReferenceSchema,
+  grinder: t.Nullable(EquipmentReferenceSchema),
   grindSetting: t.Nullable(t.String()),
   dose: t.Numeric(),
   yield: t.Numeric(),
@@ -20,8 +25,6 @@ export const ExtractionSchema = t.Object({
   recipeMetadata: t.Nullable(t.Object({}, {})),
   createdAt: t.Date(),
   updatedAt: t.Date(),
-  brewer: EquipmentReferenceSchema,
-  grinder: t.Nullable(EquipmentReferenceSchema),
 });
 
 export const CreateExtractionSchema = t.Object({

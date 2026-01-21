@@ -15,6 +15,8 @@ type ExtractionDatabaseRow = Record<string, any>;
 
 const SELECT_ALL_SQL = `SELECT
   e.*,
+  c.id as coffee_id,
+  c.name as coffee_name,
   b.id as brewer_id_ref,
   b.name as brewer_name,
   g.id as grinder_id_ref,
@@ -22,6 +24,7 @@ const SELECT_ALL_SQL = `SELECT
 FROM extractions e
 LEFT JOIN equipment b ON e.brewer_id = b.id
 LEFT JOIN equipment g ON e.grinder_id = g.id
+LEFT JOIN coffees c ON e.coffee_id = c.id
 ORDER BY e.id DESC`;
 
 const COUNT_SQL = 'SELECT COUNT(*) as total FROM extractions e';
@@ -36,6 +39,8 @@ const UPDATE_SQL =
 
 const FIND_BY_ID_SQL = `SELECT
   e.*,
+  c.id as coffee_id,
+  c.name as coffee_name,
   b.id as brewer_id_ref,
   b.name as brewer_name,
   g.id as grinder_id_ref,
@@ -43,24 +48,16 @@ const FIND_BY_ID_SQL = `SELECT
 FROM extractions e
 LEFT JOIN equipment b ON e.brewer_id = b.id
 LEFT JOIN equipment g ON e.grinder_id = g.id
+LEFT JOIN coffees c ON e.coffee_id = c.id
 WHERE e.id = ?`;
 
 function mapDatabaseRowToSchema(e: ExtractionDatabaseRow): Extraction {
   return {
     id: e.id,
-    coffeeId: e.coffee_id,
-    brewerId: e.brewer_id,
-    grinderId: e.grinder_id,
-    grindSetting: e.grind_setting,
-    dose: e.dose,
-    yield: e.yield,
-    brewTime: e.brew_time,
-    waterTemp: e.water_temp,
-    rating: e.rating,
-    tastingNotes: e.tasting_notes,
-    recipeMetadata: e.recipe_metadata ? JSON.parse(e.recipe_metadata) : null,
-    createdAt: new Date(e.created_at),
-    updatedAt: new Date(e.updated_at),
+    coffee: {
+      id: e.coffee_id,
+      name: e.coffee_name,
+    },
     brewer: {
       id: e.brewer_id_ref,
       name: e.brewer_name,
@@ -71,6 +68,16 @@ function mapDatabaseRowToSchema(e: ExtractionDatabaseRow): Extraction {
           name: e.grinder_name,
         }
       : null,
+    grindSetting: e.grind_setting,
+    dose: e.dose,
+    yield: e.yield,
+    brewTime: e.brew_time,
+    waterTemp: e.water_temp,
+    rating: e.rating,
+    tastingNotes: e.tasting_notes,
+    recipeMetadata: e.recipe_metadata ? JSON.parse(e.recipe_metadata) : null,
+    createdAt: new Date(e.created_at),
+    updatedAt: new Date(e.updated_at),
   };
 }
 
@@ -151,12 +158,12 @@ async function update(id: number, updates: UpdateExtraction): Promise<Extraction
     return undefined;
   }
 
-  const coffee = await CoffeeService.find(existing.coffeeId);
+  const coffee = await CoffeeService.find(existing.coffee.id);
   if (!coffee) {
     throw new ValidationError('Coffee not found');
   }
 
-  const brewer = await EquipmentService.find(existing.brewerId);
+  const brewer = await EquipmentService.find(existing.brewer.id);
   if (!brewer) {
     throw new ValidationError('Brewer not found');
   }
@@ -164,8 +171,8 @@ async function update(id: number, updates: UpdateExtraction): Promise<Extraction
     throw new ValidationError('Equipment must be of type BREWER');
   }
 
-  if (existing.grinderId !== null) {
-    const grinder = await EquipmentService.find(existing.grinderId);
+  if (existing?.grinder !== null) {
+    const grinder = await EquipmentService.find(existing.grinder.id);
     if (!grinder) {
       throw new ValidationError('Grinder not found');
     }

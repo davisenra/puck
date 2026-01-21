@@ -5,6 +5,7 @@ import coffeesRoutes from './coffees/routes';
 import equipmentRoutes from './equipment/routes';
 import { ApplicationError } from './errors';
 import extractionsRoutes from './extractions/routes';
+import logger from './logger';
 
 export async function createElysiaApplication() {
   return new Elysia()
@@ -13,6 +14,7 @@ export async function createElysiaApplication() {
         set.status = error.status;
         return { error: error.message };
       }
+      logger.error(`Internal error: ${error}`);
       return { error: 'Internal server error' };
     })
     .use(openapi())

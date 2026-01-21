@@ -503,7 +503,7 @@ describe('/extractions', async () => {
 
     expect(response.status).toBe(201);
     const data = await response.json();
-    expect(data.coffeeId).toBe(coffee.id);
+    expect(data.coffee.id).toBe(coffee.id);
   });
 
   test('PUT returns 400 when coffee no longer exists', async () => {
