@@ -9,7 +9,8 @@
     "build": "bun build ./src/index.ts --outdir ./dist",
     "test": "bun test **/**/*.test.ts",
     "lint": "eslint .",
-    "migrate": "bun run scripts/migrate.ts"
+    "migrate": "bun run scripts/migrate.ts",
+    "seed": "bun run scripts/seed.ts"
   },
   "dependencies": {
     "@elysiajs/openapi": "^1.4.13",
