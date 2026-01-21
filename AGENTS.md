@@ -1,383 +1,384 @@
-# Agents Guide for Puck Monorepo
+# AGENTS.md
 
-This guide provides essential information for coding agents working in the Puck repository.
-
-## Development Commands
-
-### General Commands
-
-- `bun install` - Install all dependencies
-- `bun run dev` - Start all apps in dev mode (API on 3000, web on 5173)
-- `bun run dev:api` - Start API server in dev mode (port 3000)
-- `bun run dev:web` - Start web app in dev mode (port 5173)
-
-### Testing Commands
-
-- `bun run test:api` - Run all API tests
-- `bun test` - Run tests from current directory
-- `bun test <specific-test-file.test.ts>` - Run a single test file
-
-### Build Commands
-
-- `bun run build` - Build the API package (output to apps/api/dist)
-
-### Type Checking & Linting
-
-- `bunx tsc --noEmit` - Type check API only (root tsconfig checks apps/api/\*_/_)
-- `bun run lint` - Run all linting checks (code style + API + web)
-- `bun run lint:code-style` - Check code formatting with Prettier
-- `bun run lint:api` - ESLint for API
-- `bun run lint:web` - Type check web app (uses vue-tsc)
-
-### Database Commands
-
-- `cd apps/api && bun run scripts/migrate.ts` - Run database migrations
-
-## Tech Stack
-
-### Backend
-
-- **Runtime**: Bun
-- **Language**: TypeScript (strict mode enabled)
-- **Backend Framework**: Elysia
-- **Database**: SQLite (bun:sqlite)
-- **Testing**: bun:test
-- **API Documentation**: OpenAPI/Swagger
-
-### Frontend
-
-- **Framework**: Vue 3
-- **Build Tool**: Vite
-- **State Management**: Pinia
-- **Routing**: Vue Router
-- **Language**: TypeScript
-
-## Code Style Guidelines
-
-### Formatting
-
-- Use **2 spaces** for indentation (no tabs)
-- Use **semicolons** at end of statements
-- Use **single quotes** for strings
-- Max line width: **100 characters**
-- Run `bun run lint` to check formatting
-
-### Imports
-
-- Use ES6 import statements
-- Import external libraries first, then internal modules
-- Group related imports together
-- Use default exports for services and routes
-
-```typescript
-import { Elysia, t } from 'elysia';
-import { CreateEquipmentSchema, EquipmentSchema } from './schema';
-import EquipmentService from './service';
-```
-
-### TypeScript & Types
-
-- **Strict mode is enabled** - always provide explicit types
-- Export types from schemas using `.static` property
-- Use union types with `t.Literal()` for enums
-
-```typescript
-export const EquipmentType = t.Union([t.Literal('GRINDER'), t.Literal('BREWER')]);
-export type Equipment = typeof EquipmentSchema.static;
-```
-
-### Naming Conventions
-
-- **Files**: kebab-case (e.g., `equipment-service.ts`)
-- **Variables/Functions**: camelCase (e.g., `listAll`, `mapDatabaseRowToSchema`)
-- **Constants**: UPPER_SNAKE_CASE for SQL queries (e.g., `SELECT_ALL_SQL`)
-- **Types**: PascalCase (e.g., `Equipment`, `CreateEquipment`)
-- **Interfaces**: PascalCase with descriptive names (e.g., `EquipmentDatabaseRow`)
-- **Vue Components**: PascalCase (e.g., `CoffeeList.vue`)
-
-### Error Handling
-
-- Use HTTP status codes in routes
-- Return error objects with descriptive messages
-- Use `set.status` for setting response status
-- Handle missing resources with 404 and clear error messages
-- Throw custom error classes (ApplicationError, NotFoundError, ValidationError) from services
-- Global error handler in `application.ts` automatically catches ApplicationError instances
-
-```typescript
-// In routes
-const equipment = await EquipmentService.find(Number(id));
-if (!equipment) {
-  set.status = 404;
-  return { error: 'Equipment not found' };
-}
-
-// In services (preferred approach for complex validation)
-import { NotFoundError } from '../errors';
-
-function find(id: number): Equipment | undefined {
-  const row = db.query('SELECT * FROM equipment WHERE id = ?').get(id);
-  if (!row) {
-    throw new NotFoundError('Equipment not found');
-  }
-  return mapDatabaseRowToSchema(row);
-}
-```
-
-### Database Patterns
-
-- Store SQL queries in constants at the top of service files
-- Use type aliases for database rows: `type XDatabaseRow = Record<string, any>`
-- Create mapper functions to convert database rows to schema types
-- Use parameterized queries with `?` placeholders
-
-```typescript
-const SELECT_ALL_SQL = 'SELECT e.* FROM equipment e ORDER BY e.id DESC';
-type EquipmentDatabaseRow = Record<string, any>;
-
-function mapDatabaseRowToSchema(e: EquipmentDatabaseRow): Equipment {
-  return { id: e.id, name: e.name /* ... */ };
-}
-```
-
-### Service Layer
-
-- Export services as default objects with methods
-- Use `async/await` for all database operations
-- Return typed values based on schema exports
-- Handle undefined returns appropriately (e.g., for not-found cases)
-
-```typescript
-export default { listAll, save, destroy, find };
-```
-
-### Routes
-
-- Use Elysia builder pattern with chaining
-- Define response schemas for each status code
-- Use `t.Object()` for params and body schemas
-- Set proper status codes in handlers
-
-```typescript
-new Elysia({ prefix: '/equipment' })
-  .get(
-    '/',
-    async () => {
-      /* ... */
-    },
-    { response: { 200: EquipmentListSchema } },
-  )
-  .post(
-    '/',
-    async ({ body }) => {
-      /* ... */
-    },
-    { body: CreateEquipmentSchema },
-  );
-```
-
-### Testing
-
-- Use `bun:test` with `describe`, `test`, `expect`
-- Setup/teardown test database using `beforeEach`/`afterEach`
-- Create Requests with proper URLs and methods
-- Use `expect(response.status)` and `expect(response.json())`
-- Test both happy paths and error cases
-
-```typescript
-import { describe, test, expect, beforeEach } from 'bun:test';
-
-describe('/equipment', () => {
-  beforeEach(async () => {
-    await setupTestDatabase();
-  });
-
-  test('creates new equipment', async () => {
-    const response = await app.handle(
-      new Request('http://localhost/equipment', { method: 'POST' }),
-    );
-    expect(response.status).toBe(201);
-  });
-});
-```
-
-### Migrations
-
-- Migration files are in `apps/api/migrations/` directory
-- Naming convention: `####_feature_name.sql` (e.g., `0002_coffees.sql`)
-- Use the migration system to manage database schema changes
-- Run migrations with: `cd apps/api && bun run scripts/migrate.ts`
-
-### Vue 3 Patterns
-
-#### Components
-
-- Use Vue 3 Composition API with `<script setup>`
-- Use TypeScript for component props and emits
-- Organize template, script, and style sections
-
-```typescript
-<script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-
-interface Props {
-  coffeeId: number;
-}
-
-const props = defineProps<Props>();
-
-const loading = ref(false);
-const coffee = ref<Coffee | null>(null);
-
-onMounted(async () => {
-  loading.value = true;
-  coffee.value = await fetchCoffee(props.coffeeId);
-  loading.value = false;
-});
-</script>
-
-<template>
-  <div v-if="loading">Loading...</div>
-  <div v-else-if="coffee">{{ coffee.name }}</div>
-</template>
-```
-
-#### Pinia Stores
-
-- Use defineStore with id and setup function
-- Organize stores by feature/domain
-- Use TypeScript for state typing
-
-```typescript
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-
-export const useEquipmentStore = defineStore('equipment', () => {
-  const equipment = ref<Equipment[]>([]);
-  const loading = ref(false);
-
-  const grinders = computed(() => equipment.value.filter((e) => e.type === 'GRINDER'));
-
-  async function loadEquipment() {
-    loading.value = true;
-    const response = await fetch('/api/equipment');
-    equipment.value = await response.json();
-    loading.value = false;
-  }
-
-  return { equipment, loading, grinders, loadEquipment };
-});
-```
+This guide helps AI agents contribute to the Puck repository by following established patterns across the codebase.
 
 ## Project Structure
 
 ```
 puck/
 ├── apps/
-│   ├── api/                          # Backend API server
-│   │   ├── migrations/               # SQL migration files
-│   │   │   ├── 0001_equipment.sql
-│   │   │   ├── 0002_coffees.sql
-│   │   │   ├── 0003_extractions.sql
-│   │   │   └── 0004_add_archived_to_coffees.sql
-│   │   ├── scripts/                  # Utility scripts
-│   │   │   └── migrate.ts            # Run database migrations
-│   │   ├── src/
-│   │   │   ├── coffees/              # Coffees CRUD endpoints
-│   │   │   │   ├── routes.ts
-│   │   │   │   ├── service.ts
-│   │   │   │   └── schema.ts
-│   │   │   ├── equipment/            # Equipment CRUD endpoints
-│   │   │   │   ├── routes.ts
-│   │   │   │   ├── service.ts
-│   │   │   │   └── schema.ts
-│   │   │   ├── extractions/          # Extractions CRUD endpoints
-│   │   │   │   ├── routes.ts
-│   │   │   │   ├── service.ts
-│   │   │   │   └── schema.ts
-│   │   │   ├── application.ts        # Elysia app setup
-│   │   │   ├── database.ts           # Database connection
-│   │   │   ├── errors.ts             # Custom error classes
-│   │   │   ├── index.ts              # Entry point
-│   │   │   └── migrations.ts         # Migration system
-│   │   └── tests/                    # API tests
-│   │       ├── coffees/
-│   │       ├── equipment/
-│   │       ├── extractions/
-│   │       └── helper.ts
-│   └── web/                          # Frontend Vue app
-│       ├── src/
-│       │   ├── components/           # Vue components
-│       │   │   ├── modal/           # Modal components
-│       │   │   │   ├── modals/
-│       │   │   │   │   ├── LogExtractionModal.vue
-│       │   │   │   │   └── DeleteConfirmModal.vue
-│       │   │   │   └── ModalContainer.vue
-│       │   │   ├── BaseModal.vue
-│       │   │   ├── ExtractionCard.vue
-│       │   │   ├── CoffeeCard.vue
-│       │   │   ├── EquipmentCard.vue
-│       │   │   └── Navbar.vue
-│       │   ├── composables/          # Vue composables
-│       │   │   └── useModal.ts
-│       │   ├── router/               # Vue Router config
-│       │   ├── stores/               # Pinia stores
-│       │   │   └── modal.ts
-│       │   ├── views/                # Page views
-│       │   │   └── Dashboard.vue
-│       │   ├── App.vue
-│       │   └── main.ts
-│       ├── vite.config.ts
-│       └── package.json
-├── .github/workflows/                # CI/CD workflows
-│   └── ci.yml                        # Runs lint, typecheck, tests
-├── AGENTS.md                         # This file
-├── package.json                      # Root package.json (workspaces)
-└── tsconfig.json                     # TypeScript config (API only)
+│   ├── api/           # Elysia backend (Bun + SQLite)
+│   └── web/           # Vue 3 frontend (Vite + Pinia)
+├── package.json       # Monorepo config (Bun workspaces)
+└── tsconfig.json      # Shared TypeScript config
 ```
 
-## Feature Implementation Status
+## Backend Patterns (`apps/api`)
 
-### Completed
+### Architecture: Routes → Services → Database
 
-- ✅ Equipment CRUD (grinders, brewers)
-  - Routes: `GET /equipment`, `POST /equipment`, `GET /equipment/:id`, `DELETE /equipment/:id`
-- ✅ Coffees CRUD (roaster, name, roast date, process, notes, archived)
-  - Routes: `GET /coffees`, `POST /coffees`, `GET /coffees/:id`, `PUT /coffees/:id`, `DELETE /coffees/:id`
-  - Includes soft delete via `archived` boolean field
-- ✅ Extractions CRUD (brewing records)
-  - Routes: `GET /extractions`, `POST /extractions`, `GET /extractions/:id`, `PUT /extractions/:id`, `DELETE /extractions/:id`
-  - Fields: coffeeId, brewerId, grinderId, grindSetting, dose, yield, brewTime, waterTemp, rating, tastingNotes, recipeMetadata
-- ✅ Centralized error handling
-  - Custom error classes: ApplicationError, NotFoundError, ValidationError
-  - Global error handler in application.ts
-- ✅ Frontend modal system
-  - Modal components: BaseModal, ModalContainer, LogExtractionModal, DeleteConfirmModal
-  - Composable: useModal
-  - Store: modal.ts
+Each domain (coffees, equipment, extractions) follows this three-layer pattern:
 
-### Pending Implementation
+```
+apps/api/src/{domain}/
+├── schema.ts     # Elysia types for validation
+├── service.ts    # Business logic + database queries
+└── routes.ts     # HTTP endpoints
+```
 
-None currently - all planned features are implemented.
+### Example: Creating a New Domain
 
-## CI/CD
+1. **Define schemas** in `apps/api/src/{domain}/schema.ts`:
 
-The project uses GitHub Actions for continuous integration. The workflow (`.github/workflows/ci.yml`) checks:
+```typescript
+import { t } from 'elysia';
 
-1. Code formatting (Prettier)
-2. TypeScript type checking (API and web app)
-3. API tests
+export const EntitySchema = t.Object({
+  id: t.Numeric(),
+  name: t.String({ minLength: 1 }),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
+});
 
-All checks must pass before merging to main/master branches.
+export const CreateEntitySchema = t.Object({
+  name: t.String({ minLength: 1 }),
+});
 
-## Important Notes
+export const UpdateEntitySchema = t.Partial(CreateEntitySchema);
 
-- Always run `bun run lint` before committing
-- Keep tests focused and descriptive
-- Follow REST conventions for API endpoints
-- Use proper HTTP status codes (201 for created, 204 for no content, 404 for not found)
-- OpenAPI/Swagger docs available at `/swagger`
-- Database path controlled by `DATABASE_PATH` env var (defaults to `:memory:`)
-- Root tsconfig.json only type-checks `apps/api/**/*` (web app has its own tsconfig)
-- When adding new CRUD endpoints, follow the equipment/coffees module patterns
-- Migration files must be numbered sequentially (e.g., `0004_new_feature.sql`)
+export type Entity = typeof EntitySchema.static;
+export type CreateEntity = typeof CreateEntitySchema.static;
+export type UpdateEntity = typeof UpdateEntitySchema.static;
+```
+
+2. **Create service** in `apps/api/src/{domain}/service.ts`:
+
+```typescript
+import { db } from '../database';
+import { Entity, CreateEntity, UpdateEntity } from './schema';
+
+async function listAll(): Promise<Entity[]> {
+  const rows = db.query('SELECT * FROM entities').all();
+  return rows.map(mapToEntity);
+}
+
+async function save(data: CreateEntity): Promise<Entity> {
+  const result = db.query('INSERT INTO entities (...) VALUES (...)').run(...);
+  return await find(result.lastInsertRowid);
+}
+
+async function find(id: number): Promise<Entity | undefined> {
+  const row = db.query('SELECT * FROM entities WHERE id = ?').get(id);
+  return row ? mapToEntity(row) : undefined;
+}
+
+async function update(id: number, data: UpdateEntity): Promise<Entity | undefined> {
+  // Update query...
+  return await find(id);
+}
+
+async function destroy(id: number): Promise<void> {
+  db.query('DELETE FROM entities WHERE id = ?').run(id);
+}
+
+export default { listAll, save, find, update, destroy };
+```
+
+3. **Create routes** in `apps/api/src/{domain}/routes.ts`:
+
+```typescript
+import { Elysia, t } from 'elysia';
+import { EntitySchema, CreateEntitySchema, UpdateEntitySchema } from './schema';
+import EntityService from './service';
+
+export default new Elysia({ prefix: '/entities' })
+  .get('/', async () => await EntityService.listAll(), {
+    response: { 200: t.Array(EntitySchema) },
+  })
+  .post(
+    '/',
+    async ({ body, set }) => {
+      const entity = await EntityService.save(body);
+      set.status = 201;
+      return entity;
+    },
+    {
+      body: CreateEntitySchema,
+      response: { 201: EntitySchema },
+    },
+  )
+  .get('/:id', async ({ params: { id }, set }) => {
+    const entity = await EntityService.find(Number(id));
+    if (!entity) {
+      set.status = 404;
+      return { error: 'Entity not found' };
+    }
+    return entity;
+  })
+  .put(
+    '/:id',
+    async ({ params: { id }, body, set }) => {
+      const entity = await EntityService.update(Number(id), body);
+      if (!entity) {
+        set.status = 404;
+        return { error: 'Entity not found' };
+      }
+      return entity;
+    },
+    {
+      body: UpdateEntitySchema,
+    },
+  )
+  .delete('/:id', async ({ params: { id }, set }) => {
+    await EntityService.destroy(Number(id));
+    set.status = 204;
+    return;
+  });
+```
+
+4. **Register routes** in `apps/api/src/application.ts`:
+
+```typescript
+import entityRoutes from './entities/routes';
+
+export async function createElysiaApplication() {
+  return new Elysia().use(entityRoutes); // Add this line
+  // ... other routes
+}
+```
+
+5. **Export types** in `apps/api/src/types.ts`:
+
+```typescript
+export type { Entity, CreateEntity, UpdateEntity } from './entities/schema';
+```
+
+6. **Add migration** in `apps/api/migrations/{timestamp}_entities.sql`:
+
+```sql
+CREATE TABLE IF NOT EXISTS entities (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Error Handling
+
+Use custom error classes from `src/errors.ts`:
+
+```typescript
+import { NotFoundError, ValidationError } from '../errors';
+
+if (!entity) {
+  throw new NotFoundError('Entity not found');
+}
+```
+
+### Testing
+
+Write integration tests in `apps/api/tests/{domain}/` using Bun test:
+
+```typescript
+import { describe, expect, test } from 'bun:test';
+import { createElysiaApplication } from '../../src/application';
+import EntityService from '../../src/entities/service';
+
+describe('/entities', async () => {
+  const app = await createElysiaApplication();
+
+  test('returns list of entities', async () => {
+    const response = await app.handle(new Request('http://localhost/entities'));
+    expect(response.status).toBe(200);
+    const data = await response.json();
+    expect(data).toBeArray();
+  });
+});
+```
+
+## Frontend Patterns (`apps/web`)
+
+### Architecture: Components → Composables → Stores → API Client
+
+```
+apps/web/src/
+├── api/
+│   ├── client.ts           # Fetch wrapper
+│   ├── entities.ts         # API endpoint functions
+│   └── useEntities.ts      # TanStack Query composables
+├── components/
+│   ├── EntityCard.vue      # UI components
+│   └── modal/
+│       └── modals/
+│           └── EntityModal.vue
+├── composables/
+│   └── useModal.ts         # Modal system
+├── stores/
+│   └── modal.ts            # Pinia stores
+└── views/
+    └── Dashboard.vue
+```
+
+### Example: Adding a New Domain to Frontend
+
+1. **Create API functions** in `apps/web/src/api/entities.ts`:
+
+```typescript
+import client from './client';
+import type { Entity, CreateEntity, UpdateEntity } from '@puck/api';
+
+export const entityApi = {
+  listAll: () => client.get<Entity[]>('/entities'),
+  get: (id: number) => client.get<Entity>(`/entities/${id}`),
+  create: (data: CreateEntity) => client.post<CreateEntity, Entity>('/entities', data),
+  update: (id: number, data: UpdateEntity) =>
+    client.put<UpdateEntity, Entity>(`/entities/${id}`, data),
+  delete: (id: number) => client.delete(`/entities/${id}`),
+};
+```
+
+2. **Create TanStack Query composable** in `apps/web/src/api/useEntities.ts`:
+
+```typescript
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
+import { entityApi } from './entities';
+
+export function useEntities() {
+  return useQuery({
+    queryKey: ['entities'],
+    queryFn: entityApi.listAll,
+  });
+}
+
+export function useEntity(id: number) {
+  return useQuery({
+    queryKey: ['entities', id],
+    queryFn: () => entityApi.get(id),
+  });
+}
+
+export function useCreateEntity() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: entityApi.create,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['entities'] }),
+  });
+}
+
+export function useUpdateEntity() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdateEntity }) => entityApi.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['entities'] }),
+  });
+}
+
+export function useDeleteEntity() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: entityApi.delete,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['entities'] }),
+  });
+}
+```
+
+3. **Create component** in `apps/web/src/components/EntityCard.vue`:
+
+```vue
+<script setup lang="ts">
+import { useEntities, useDeleteEntity } from '@/api/useEntities';
+import { useModal } from '@/composables/useModal';
+
+const { data: entities, isLoading } = useEntities();
+const deleteEntity = useDeleteEntity();
+const { openDeleteModal } = useModal();
+
+async function handleDelete(id: number, name: string) {
+  const result = await openDeleteModal({ itemName: name, itemType: 'entity' });
+  if (result?.confirmed) {
+    deleteEntity.mutate(id);
+  }
+}
+</script>
+
+<template>
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">Entities</h2>
+      <div v-if="isLoading">Loading...</div>
+      <ul v-else>
+        <li v-for="entity in entities" :key="entity.id">
+          {{ entity.name }}
+          <button @click="handleDelete(entity.id, entity.name)">Delete</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
+```
+
+### Modal System
+
+See `apps/web/src/components/modal/README.md` for detailed modal system documentation.
+
+### Form Validation
+
+Use the `useFormValidation` composable for client-side validation:
+
+```typescript
+import { useFormValidation } from '@/composables/useFormValidation';
+
+const formData = ref({ name: '' });
+const schema = { name: { required: true, minLength: 3 } };
+const { validateField, getError, validateAll } = useFormValidation(schema, formData);
+```
+
+### Testing
+
+Write tests in `apps/web/src/` using Vitest:
+
+```typescript
+import { describe, test, expect } from 'vitest';
+
+describe('MyComponent', () => {
+  test('renders correctly', () => {
+    // Test implementation
+  });
+});
+```
+
+## Type Sharing
+
+Type safety is maintained across the stack:
+
+1. Define types in `apps/api/src/{domain}/schema.ts` using Elysia types
+2. Export them in `apps/api/src/types.ts`
+3. Import in frontend: `import type { Entity } from "@puck/api"`
+
+## Linting & Type Checking
+
+Run these commands before committing:
+
+```bash
+bun run lint               # Check all lint rules
+bunx tsc --noEmit          # Type check
+```
+
+## Existing Domains
+
+Study these for complete examples:
+
+- **Coffees**: `apps/api/src/coffees/` and `apps/web/src/api/coffees.ts`
+- **Equipment**: `apps/api/src/equipment/` and `apps/web/src/api/equipment.ts`
+- **Extractions**: `apps/api/src/extractions/` and `apps/web/src/api/extractions.ts`
+
+## Key Conventions
+
+- **Database queries**: Use parameterized queries to prevent SQL injection
+- **Error responses**: Return `{ error: string }` format
+- **HTTP status codes**: Use appropriate codes (201 for create, 204 for delete, 404 for not found)
+- **Vue components**: Use `<script setup lang="ts">` syntax
+- **API client**: Always use the wrapper in `apps/web/src/api/client.ts`
+- **Query invalidation**: Invalidate relevant queries after mutations
+- **Type safety**: Never use `any` - leverage TypeScript strict mode
