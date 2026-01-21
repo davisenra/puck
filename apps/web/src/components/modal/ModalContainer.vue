@@ -1,7 +1,22 @@
 <script setup lang="ts">
+import { onMounted, onUnmounted } from "vue";
 import { useModalStore } from "@/stores/modal";
 
 const modalStore = useModalStore();
+
+function handleEscape(event: KeyboardEvent): void {
+  if (event.key === "Escape" && modalStore.hasActiveModals) {
+    modalStore.closeTop();
+  }
+}
+
+onMounted(() => {
+  window.addEventListener("keydown", handleEscape);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("keydown", handleEscape);
+});
 </script>
 
 <template>
