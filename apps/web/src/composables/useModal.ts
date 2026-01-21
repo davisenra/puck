@@ -1,8 +1,11 @@
 import { useModalStore } from "@/stores/modal";
-import DeleteConfirmModal from "@/components/modal/modals/DeleteConfirmModal.vue";
-import LogExtractionModal from "@/components/modal/modals/LogExtractionModal.vue";
-import AddEquipmentModal from "@/components/modal/modals/AddEquipmentModal.vue";
-import AddCoffeeModal from "@/components/modal/modals/AddCoffeeModal.vue";
+import DeleteConfirmModal from "@/components/Modal/Modals/DeleteConfirmModal.vue";
+import LogExtractionModal from "@/components/Modal/Modals/LogExtractionModal.vue";
+import AddEquipmentModal from "@/components/Modal/Modals/AddEquipmentModal.vue";
+import AddCoffeeModal from "@/components/Modal/Modals/AddCoffeeModal.vue";
+import ManageCoffeeModal from "@/components/Modal/Modals/ManageCoffeeModal.vue";
+import ManageEquipmentModal from "@/components/Modal/Modals/ManageEquipmentModal.vue";
+import ManageExtractionModal from "@/components/Modal/Modals/ManageExtractionModal.vue";
 
 export function useModal() {
   const modalStore = useModalStore();
@@ -57,6 +60,43 @@ export function useModal() {
     return openModal(AddCoffeeModal, options || {});
   }
 
+  async function openManageCoffeeModal(options: {
+    coffee: {
+      id: number;
+      roaster: string;
+      name: string;
+      process: string;
+      status: string;
+    };
+  }): Promise<{ deleted?: boolean }> {
+    return openModal(ManageCoffeeModal, options);
+  }
+
+  async function openManageEquipmentModal(options: {
+    equipment: {
+      id: number;
+      name: string;
+      type: "GRINDER" | "BREWER";
+    };
+  }): Promise<{ deleted?: boolean }> {
+    return openModal(ManageEquipmentModal, options);
+  }
+
+  async function openManageExtractionModal(options: {
+    extraction: {
+      id: number;
+      coffee: string;
+      brewer: string;
+      grinder: string;
+      dose: string;
+      yield: string;
+      time: string;
+      rating: number;
+    };
+  }): Promise<{ deleted?: boolean }> {
+    return openModal(ManageExtractionModal, options);
+  }
+
   return {
     openModal,
     closeModal,
@@ -66,5 +106,8 @@ export function useModal() {
     openLogExtractionModal,
     openAddEquipmentModal,
     openAddCoffeeModal,
+    openManageCoffeeModal,
+    openManageEquipmentModal,
+    openManageExtractionModal,
   };
 }

@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { useModal } from "@/composables/useModal";
 
-const { openDeleteModal, openAddCoffeeModal } = useModal();
+const { openManageCoffeeModal, openAddCoffeeModal } = useModal();
 
 const coffees = ref([
   {
@@ -21,17 +21,6 @@ const coffees = ref([
   },
 ]);
 
-async function handleDelete(id: number, name: string) {
-  const result = await openDeleteModal({
-    itemName: name,
-    itemType: "coffee",
-  });
-
-  if (result.confirmed) {
-    console.log("Deleting coffee:", id);
-  }
-}
-
 async function handleAddCoffee() {
   const result = await openAddCoffeeModal();
 
@@ -44,6 +33,13 @@ async function handleAddCoffee() {
       process: result.coffee.process ?? "",
       status: "Available",
     });
+  }
+}
+
+async function handleView(coffee: (typeof coffees.value)[0]) {
+  const result = await openManageCoffeeModal({ coffee });
+  if (result.deleted) {
+    console.log("Deleting coffee:", coffee.id);
   }
 }
 </script>
@@ -65,11 +61,15 @@ async function handleAddCoffee() {
               <th>Name</th>
               <th>Process</th>
               <th>Status</th>
-              <th class="text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="coffee in coffees" :key="coffee.id">
+            <tr
+              v-for="coffee in coffees"
+              :key="coffee.id"
+              class="hover:bg-base-200 cursor-pointer"
+              @click="handleView(coffee)"
+            >
               <td>{{ coffee.roaster }}</td>
               <td>{{ coffee.name }}</td>
               <td>{{ coffee.process }}</td>
@@ -83,43 +83,6 @@ async function handleAddCoffee() {
                   ]"
                   >{{ coffee.status }}</span
                 >
-              </td>
-              <td class="text-right">
-                <div class="dropdown dropdown-end dropdown-bottom">
-                  <div
-                    tabindex="0"
-                    role="button"
-                    class="btn btn-xs btn-ghost m-1"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                      />
-                    </svg>
-                  </div>
-                  <ul
-                    tabindex="0"
-                    class="dropdown-content menu bg-base-100 rounded-box z-50 w-32 p-2 shadow"
-                  >
-                    <li><a>Edit</a></li>
-                    <li>
-                      <a
-                        class="text-error"
-                        @click="handleDelete(coffee.id, coffee.name)"
-                        >Delete</a
-                      >
-                    </li>
-                  </ul>
-                </div>
               </td>
             </tr>
           </tbody>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Navbar from "@/components/Navbar.vue";
-import ModalContainer from "@/components/modal/ModalContainer.vue";
+import ModalContainer from "@/components/Modal/ModalContainer.vue";
 </script>
 
 <template>

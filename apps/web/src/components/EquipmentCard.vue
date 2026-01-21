@@ -2,23 +2,14 @@
 import { ref } from "vue";
 import { useModal } from "@/composables/useModal";
 
-const { openDeleteModal, openAddEquipmentModal } = useModal();
+const { openManageEquipmentModal, openAddEquipmentModal } = useModal();
 
-const equipment = ref([
+const equipment = ref<
+  { id: number; name: string; type: "GRINDER" | "BREWER" }[]
+>([
   { id: 1, name: "Baratza Sette 270", type: "GRINDER" },
   { id: 2, name: "V60", type: "BREWER" },
 ]);
-
-async function handleDelete(id: number, name: string) {
-  const result = await openDeleteModal({
-    itemName: name,
-    itemType: "equipment",
-  });
-
-  if (result.confirmed) {
-    console.log("Deleting equipment:", id);
-  }
-}
 
 async function handleAddEquipment() {
   const result = await openAddEquipmentModal();
@@ -30,6 +21,13 @@ async function handleAddEquipment() {
       name: result.equipment.name,
       type: result.equipment.type,
     });
+  }
+}
+
+async function handleView(item: (typeof equipment.value)[0]) {
+  const result = await openManageEquipmentModal({ equipment: item });
+  if (result.deleted) {
+    console.log("Deleting equipment:", item.id);
   }
 }
 </script>
@@ -49,11 +47,15 @@ async function handleAddEquipment() {
             <tr>
               <th>Name</th>
               <th>Type</th>
-              <th class="text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in equipment" :key="item.id">
+            <tr
+              v-for="item in equipment"
+              :key="item.id"
+              class="hover:bg-base-200 cursor-pointer"
+              @click="handleView(item)"
+            >
               <td>{{ item.name }}</td>
               <td>
                 <span
@@ -65,43 +67,6 @@ async function handleAddEquipment() {
                   ]"
                   >{{ item.type }}</span
                 >
-              </td>
-              <td class="text-right">
-                <div class="dropdown dropdown-end dropdown-bottom">
-                  <div
-                    tabindex="0"
-                    role="button"
-                    class="btn btn-xs btn-ghost m-1"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                      />
-                    </svg>
-                  </div>
-                  <ul
-                    tabindex="0"
-                    class="dropdown-content menu bg-base-100 rounded-box z-50 w-32 p-2 shadow"
-                  >
-                    <li><a>Edit</a></li>
-                    <li>
-                      <a
-                        class="text-error"
-                        @click="handleDelete(item.id, item.name)"
-                        >Delete</a
-                      >
-                    </li>
-                  </ul>
-                </div>
               </td>
             </tr>
           </tbody>

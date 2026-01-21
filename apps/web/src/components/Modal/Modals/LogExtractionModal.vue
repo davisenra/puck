@@ -165,11 +165,9 @@ function updateTimeDisplay(): void {
       </div>
     </div>
 
-    <div class="modal-action">
+    <div class="modal-action flex justify-between">
       <button class="btn btn-sm" @click="handleCancel">Cancel</button>
-      <button class="btn btn-primary btn-sm" @click="handleSave">
-        Save Extraction
-      </button>
+      <button class="btn btn-primary btn-sm" @click="handleSave">Save</button>
     </div>
   </BaseModal>
 </template>

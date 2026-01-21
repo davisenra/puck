@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { useModal } from "@/composables/useModal";
 
-const { openDeleteModal } = useModal();
+const { openManageExtractionModal } = useModal();
 
 const extractions = ref([
   {
@@ -27,14 +27,10 @@ const extractions = ref([
   },
 ]);
 
-async function handleDelete(id: number, coffeeName: string) {
-  const result = await openDeleteModal({
-    itemName: coffeeName,
-    itemType: "extraction",
-  });
-
-  if (result.confirmed) {
-    console.log("Deleting extraction:", id);
+async function handleView(extraction: (typeof extractions.value)[0]) {
+  const result = await openManageExtractionModal({ extraction });
+  if (result.deleted) {
+    console.log("Deleting extraction:", extraction.id);
   }
 }
 </script>
@@ -54,11 +50,15 @@ async function handleDelete(id: number, coffeeName: string) {
               <th>Yield</th>
               <th>Time</th>
               <th>Rating</th>
-              <th class="text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="extraction in extractions" :key="extraction.id">
+            <tr
+              v-for="extraction in extractions"
+              :key="extraction.id"
+              class="hover:bg-base-200 cursor-pointer"
+              @click="handleView(extraction)"
+            >
               <td>{{ extraction.coffee }}</td>
               <td>{{ extraction.brewer }}</td>
               <td>{{ extraction.grinder }}</td>
@@ -69,44 +69,6 @@ async function handleDelete(id: number, coffeeName: string) {
                 <span class="badge badge-accent"
                   >{{ extraction.rating }}/10</span
                 >
-              </td>
-              <td class="text-right">
-                <div class="dropdown dropdown-end dropdown-bottom">
-                  <div
-                    tabindex="0"
-                    role="button"
-                    class="btn btn-xs btn-ghost m-1"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                      />
-                    </svg>
-                  </div>
-                  <ul
-                    tabindex="0"
-                    class="dropdown-content menu bg-base-100 rounded-box z-50 w-32 p-2 shadow"
-                  >
-                    <li><a>View</a></li>
-                    <li><a>Edit</a></li>
-                    <li>
-                      <a
-                        class="text-error"
-                        @click="handleDelete(extraction.id, extraction.coffee)"
-                        >Delete</a
-                      >
-                    </li>
-                  </ul>
-                </div>
               </td>
             </tr>
           </tbody>
