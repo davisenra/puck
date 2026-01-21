@@ -3,6 +3,8 @@ import { join } from 'node:path';
 
 import Database from 'bun:sqlite';
 
+import logger from '../src/logger';
+
 type Migration = {
   name: string;
   sql: string;
@@ -28,7 +30,7 @@ export async function loadMigrations(): Promise<Migration[]> {
 
     return migrations;
   } catch (error) {
-    console.error('Failed to load migrations:', error);
+    logger.error({ error }, `Failed to load migrations`);
     process.exit(1);
   }
 }
@@ -55,7 +57,7 @@ export async function runMigrations(db: Database, migrations: Migration[]) {
       }
     }
   } catch (error) {
-    console.error('Migration failed:', error);
+    logger.error({ error }, `Migration failed`);
     process.exit(1);
   }
 }

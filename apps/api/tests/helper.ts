@@ -1,5 +1,5 @@
+import { loadMigrations, runMigrations } from '../scripts/migrations';
 import { useTestDatabase } from '../src/database';
-import { loadMigrations, runMigrations } from '../src/migrations';
 
 export async function setupTestDatabase(): Promise<void> {
   useTestDatabase();

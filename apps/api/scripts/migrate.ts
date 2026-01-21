@@ -1,4 +1,4 @@
 import { db } from '../src/database';
-import { loadMigrations, runMigrations } from '../src/migrations';
+import { loadMigrations, runMigrations } from './migrations';
 
 await runMigrations(db, await loadMigrations());
