@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { ref } from "vue";
-import { useFormValidation } from "../useFormValidation";
+import { useFormValidation } from "../../src/composables/useFormValidation";
 
 describe("useFormValidation", () => {
   describe("validation rules", () => {
