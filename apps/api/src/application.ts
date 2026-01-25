@@ -1,3 +1,4 @@
+import { cors } from '@elysiajs/cors';
 import { openapi } from '@elysiajs/openapi';
 import { Elysia } from 'elysia';
 
@@ -17,6 +18,7 @@ export async function createElysiaApplication() {
       logger.error(`Internal error: ${error}`);
       return { error: 'Internal server error' };
     })
+    .use(cors())
     .use(openapi())
     .use(equipmentRoutes)
     .use(coffeesRoutes)

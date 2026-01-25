@@ -13,6 +13,7 @@
     "seed": "bun run scripts/seed.ts"
   },
   "dependencies": {
+    "@elysiajs/cors": "^1.4.1",
     "@elysiajs/openapi": "^1.4.13",
     "elysia": "latest",
     "pino": "^10.2.1"
