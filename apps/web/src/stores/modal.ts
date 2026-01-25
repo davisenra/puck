@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref, computed } from "vue";
+import { ref, computed, markRaw } from "vue";
 
 interface ModalEntry {
   id: string;
@@ -29,7 +29,7 @@ export const useModalStore = defineStore("modal", () => {
       const id = generateId();
       modals.value.push({
         id,
-        component,
+        component: markRaw(component),
         props,
         resolve,
         reject,
