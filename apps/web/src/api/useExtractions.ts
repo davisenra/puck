@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { extractionApi } from "./extractions";
-import type { CreateExtraction, UpdateExtraction } from "@puck/api";
+import type { CreateExtraction, UpdateExtraction } from "@/types";
 
 export function useExtractions() {
   return useQuery({

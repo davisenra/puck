@@ -4,7 +4,7 @@ import type {
   ExtractionList,
   CreateExtraction,
   UpdateExtraction,
-} from "@puck/api";
+} from "@/types";
 
 export const extractionApi = {
   listAll: () => client.get<ExtractionList>("/extractions"),

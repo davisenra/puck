@@ -6,6 +6,7 @@ import AddCoffeeModal from "@/components/Modal/Modals/AddCoffeeModal.vue";
 import ManageCoffeeModal from "@/components/Modal/Modals/ManageCoffeeModal.vue";
 import ManageEquipmentModal from "@/components/Modal/Modals/ManageEquipmentModal.vue";
 import ManageExtractionModal from "@/components/Modal/Modals/ManageExtractionModal.vue";
+import { Coffee, UpdateCoffee } from "@/types";
 
 export function useModal() {
   const modalStore = useModalStore();
@@ -61,14 +62,8 @@ export function useModal() {
   }
 
   async function openManageCoffeeModal(options: {
-    coffee: {
-      id: number;
-      roaster: string;
-      name: string;
-      process: string;
-      status: string;
-    };
-  }): Promise<{ deleted?: boolean }> {
+    coffee: Coffee;
+  }): Promise<{ deleted?: boolean; updated?: UpdateCoffee }> {
     return openModal(ManageCoffeeModal, options);
   }
 

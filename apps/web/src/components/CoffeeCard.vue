@@ -1,46 +1,54 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { useModal } from "@/composables/useModal";
+import {
+  useCoffees,
+  useCreateCoffee,
+  useUpdateCoffee,
+  useDeleteCoffee,
+} from "@/api/useCoffees";
+import type { Coffee } from "@/types";
 
 const { openManageCoffeeModal, openAddCoffeeModal } = useModal();
 
-const coffees = ref([
-  {
-    id: 1,
-    roaster: "Onyx Coffee Lab",
-    name: "Ethiopia Gedeb",
-    process: "Washed",
-    status: "Available",
-  },
-  {
-    id: 2,
-    roaster: "Intelligentsia",
-    name: "House Blend",
-    process: "Natural",
-    status: "Archived",
-  },
-]);
+const { data: coffees, isLoading, error } = useCoffees();
+const createCoffee = useCreateCoffee();
+const updateCoffee = useUpdateCoffee();
+const deleteCoffee = useDeleteCoffee();
 
 async function handleAddCoffee() {
   const result = await openAddCoffeeModal();
 
   if (result?.coffee) {
-    const newId = Math.max(...coffees.value.map((c) => c.id), 0) + 1;
-    coffees.value.push({
-      id: newId,
-      roaster: result.coffee.roaster,
-      name: result.coffee.name,
-      process: result.coffee.process ?? "",
-      status: "Available",
+    const coffeeData = {
+      ...result.coffee,
+      roastDate: result.coffee.roastDate
+        ? new Date(result.coffee.roastDate)
+        : null,
+    };
+    createCoffee.mutate(coffeeData, {
+      onError: (error) => console.error("Failed to create coffee:", error),
     });
   }
 }
 
-async function handleView(coffee: (typeof coffees.value)[0]) {
-  const result = await openManageCoffeeModal({ coffee });
-  if (result.deleted) {
-    console.log("Deleting coffee:", coffee.id);
+async function handleView(item: Coffee) {
+  const result = await openManageCoffeeModal({ coffee: item });
+  if (result?.deleted) {
+    deleteCoffee.mutate(item.id, {
+      onError: (error) => console.error("Failed to delete coffee:", error),
+    });
+  } else if (result?.updated) {
+    updateCoffee.mutate(
+      { id: item.id, data: result.updated },
+      {
+        onError: (error) => console.error("Failed to update coffee:", error),
+      },
+    );
   }
+}
+
+function getStatusText(archived: boolean): string {
+  return archived ? "Archived" : "Available";
 }
 </script>
 
@@ -53,7 +61,17 @@ async function handleView(coffee: (typeof coffees.value)[0]) {
           <span>+ Add Coffee</span>
         </button>
       </div>
-      <div class="overflow-x-auto">
+      <div v-if="isLoading" class="py-8 text-center">
+        <span class="loading loading-spinner loading-md"></span>
+        <p class="mt-2">Loading coffees...</p>
+      </div>
+      <div v-else-if="error" class="py-8 text-center">
+        <p class="text-error">Failed to load coffees</p>
+      </div>
+      <div v-else-if="!coffees?.length" class="py-8 text-center">
+        <p class="text-base-content/50">No coffees found</p>
+      </div>
+      <div v-else class="overflow-x-auto">
         <table class="table-sm table">
           <thead>
             <tr>
@@ -65,23 +83,21 @@ async function handleView(coffee: (typeof coffees.value)[0]) {
           </thead>
           <tbody>
             <tr
-              v-for="coffee in coffees"
-              :key="coffee.id"
+              v-for="item in coffees"
+              :key="item.id"
               class="hover:bg-base-200 cursor-pointer"
-              @click="handleView(coffee)"
+              @click="handleView(item)"
             >
-              <td>{{ coffee.roaster }}</td>
-              <td>{{ coffee.name }}</td>
-              <td>{{ coffee.process }}</td>
+              <td>{{ item.roaster }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.process || "-" }}</td>
               <td>
                 <span
                   :class="[
                     'badge',
-                    coffee.status === 'Available'
-                      ? 'badge-success'
-                      : 'badge-neutral',
+                    !item.archived ? 'badge-success' : 'badge-neutral',
                   ]"
-                  >{{ coffee.status }}</span
+                  >{{ getStatusText(item.archived) }}</span
                 >
               </td>
             </tr>
@@ -89,7 +105,7 @@ async function handleView(coffee: (typeof coffees.value)[0]) {
         </table>
       </div>
 
-      <div class="text-base-content/50 py-8 text-center">
+      <div v-if="coffees?.length" class="text-base-content/50 py-8 text-center">
         <p>{{ coffees.length }} coffee items</p>
       </div>
     </div>

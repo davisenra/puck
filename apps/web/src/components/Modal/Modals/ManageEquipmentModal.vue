@@ -1,16 +1,17 @@
 <script setup lang="ts">
+import type { Equipment } from "@/types";
 import BaseModal from "../BaseModal.vue";
 import ConfirmDeletionButton from "@/components/Buttons/ConfirmDeletionButton.vue";
 
-interface Props {
-  equipment: {
-    id: number;
-    name: string;
-    type: "GRINDER" | "BREWER";
-  };
+interface EquipmentProps {
+  id: number;
+  name: string;
+  type: "GRINDER" | "BREWER";
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const props = defineProps<Props>();
+const props = defineProps<EquipmentProps>();
 
 const emit = defineEmits<{
   close: [result: { deleted?: boolean }];
@@ -38,7 +39,7 @@ function handleDeleteConfirm() {
         <label class="label">
           <span class="label-text">Type</span>
         </label>
-        <span>{{ equipment.type }}</span>
+        <span>{{ props.type }}</span>
       </div>
 
       <div class="form-control">

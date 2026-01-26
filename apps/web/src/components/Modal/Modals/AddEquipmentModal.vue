@@ -23,7 +23,7 @@ const schema = {
   type: { required: true, message: "Type is required" },
 };
 
-const { errors, touched, reset, validateAll, handleBlur, hasError, getError } =
+const { reset, validateAll, handleBlur, hasError, getError } =
   useFormValidation(schema, form, { mode: "blur" });
 
 reset();
@@ -32,7 +32,7 @@ function handleSave(): void {
   if (!validateAll()) {
     return;
   }
-  emit("close", { equipment: { ...form.value } });
+  emit("close", { equipment: form.value });
 }
 
 function handleCancel(): void {

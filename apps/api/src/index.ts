@@ -2,8 +2,6 @@ import { createElysiaApplication } from './application';
 import { close } from './database';
 import logger from './logger';
 
-export * from './types';
-
 async function main(): Promise<void> {
   const app = await createElysiaApplication();
 

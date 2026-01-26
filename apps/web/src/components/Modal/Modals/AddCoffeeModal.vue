@@ -47,7 +47,7 @@ const schema = {
   },
 };
 
-const { errors, touched, reset, validateAll, handleBlur, hasError, getError } =
+const { reset, validateAll, handleBlur, hasError, getError } =
   useFormValidation(schema, form, { mode: "blur" });
 
 reset();
@@ -56,7 +56,10 @@ function handleSave(): void {
   if (!validateAll()) {
     return;
   }
-  emit("close", { coffee: { ...form.value } });
+
+  const coffeeData = { ...form.value };
+
+  emit("close", { coffee: coffeeData });
 }
 
 function handleCancel(): void {

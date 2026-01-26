@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { coffeeApi } from "./coffees";
-import type { CreateCoffee, UpdateCoffee } from "@puck/api";
+import type { CreateCoffee, UpdateCoffee } from "@/types";
 
 export function useCoffees() {
   return useQuery({ queryKey: ["coffees"], queryFn: coffeeApi.listAll });

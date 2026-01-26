@@ -25,9 +25,9 @@ async function handleLogExtraction() {
     </div>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <ExtractionCard class="lg:col-span-2" />
       <EquipmentCard />
       <CoffeeCard />
-      <ExtractionCard class="lg:col-span-2" />
     </div>
 
     <button
