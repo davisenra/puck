@@ -12,16 +12,6 @@ Puck helps you manage your coffee brewing journey by tracking your equipment, co
 
 This project is still under active development and is not yet functional. The core architecture is in place, but many features are incomplete.
 
-## Technology Stack
-
-- **Runtime**: Bun
-- **Backend**: Elysia (TypeScript web framework)
-- **Database**: SQLite
-- **Frontend**: Vue 3 + Vite
-- **UI**: DaisyUI + Tailwind CSS
-- **State Management**: Pinia
-- **Data Fetching**: TanStack Query
-
 ## Architecture
 
 Puck is a monorepo with two main applications:
@@ -31,4 +21,4 @@ Puck is a monorepo with two main applications:
 
 ## License
 
-Unlicensed
+MIT
