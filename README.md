@@ -26,8 +26,8 @@ This project is still under active development and is not yet functional. The co
 
 Puck is a monorepo with two main applications:
 
-- `apps/api` - REST API backend
-- `apps/web` - Single-page application frontend
+- `packages/api` - REST API backend
+- `packages/web` - Single-page application frontend
 
 ## License
 

@@ -7,6 +7,6 @@ node_modules
 coverage
 dist
 *.db
-apps/web
-apps/api/dist
+packages/web
+packages/api/dist
 bun.lockb

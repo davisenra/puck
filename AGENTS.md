@@ -6,21 +6,21 @@ This guide helps AI agents contribute to the Puck repository by following establ
 
 ```
 puck/
-├── apps/
+├── packages/
 │   ├── api/           # Elysia backend (Bun + SQLite)
 │   └── web/           # Vue 3 frontend (Vite + Pinia)
 ├── package.json       # Monorepo config (Bun workspaces)
 └── tsconfig.json      # Shared TypeScript config
 ```
 
-## Backend Patterns (`apps/api`)
+## Backend Patterns (`packages/api`)
 
 ### Architecture: Routes → Services → Database
 
 Each domain (coffees, equipment, extractions) follows this three-layer pattern:
 
 ```
-apps/api/src/{domain}/
+packages/api/src/{domain}/
 ├── schema.ts     # Elysia types for validation
 ├── service.ts    # Business logic + database queries
 └── routes.ts     # HTTP endpoints
@@ -28,7 +28,7 @@ apps/api/src/{domain}/
 
 ### Example: Creating a New Domain
 
-1. **Define schemas** in `apps/api/src/{domain}/schema.ts`:
+1. **Define schemas** in `packages/api/src/{domain}/schema.ts`:
 
 ```typescript
 import { t } from 'elysia';
@@ -51,7 +51,7 @@ export type CreateEntity = typeof CreateEntitySchema.static;
 export type UpdateEntity = typeof UpdateEntitySchema.static;
 ```
 
-2. **Create service** in `apps/api/src/{domain}/service.ts`:
+2. **Create service** in `packages/api/src/{domain}/service.ts`:
 
 ```typescript
 import { db } from '../database';
@@ -84,7 +84,7 @@ async function destroy(id: number): Promise<void> {
 export default { listAll, save, find, update, destroy };
 ```
 
-3. **Create routes** in `apps/api/src/{domain}/routes.ts`:
+3. **Create routes** in `packages/api/src/{domain}/routes.ts`:
 
 ```typescript
 import { Elysia, t } from 'elysia';
@@ -136,7 +136,7 @@ export default new Elysia({ prefix: '/entities' })
   });
 ```
 
-4. **Register routes** in `apps/api/src/application.ts`:
+4. **Register routes** in `packages/api/src/application.ts`:
 
 ```typescript
 import entityRoutes from './entities/routes';
@@ -147,13 +147,13 @@ export async function createElysiaApplication() {
 }
 ```
 
-5. **Export types** in `apps/api/src/types.ts`:
+5. **Export types** in `packages/api/src/types.ts`:
 
 ```typescript
 export type { Entity, CreateEntity, UpdateEntity } from './entities/schema';
 ```
 
-6. **Add migration** in `apps/api/migrations/{timestamp}_entities.sql`:
+6. **Add migration** in `packages/api/migrations/{timestamp}_entities.sql`:
 
 ```sql
 CREATE TABLE IF NOT EXISTS entities (
@@ -178,7 +178,7 @@ if (!entity) {
 
 ### Testing
 
-Write integration tests in `apps/api/tests/{domain}/` using Bun test:
+Write integration tests in `packages/api/tests/{domain}/` using Bun test:
 
 ```typescript
 import { describe, expect, test } from 'bun:test';
@@ -197,12 +197,12 @@ describe('/entities', async () => {
 });
 ```
 
-## Frontend Patterns (`apps/web`)
+## Frontend Patterns (`packages/web`)
 
 ### Architecture: Components → Composables → Stores → API Client
 
 ```
-apps/web/src/
+packages/web/src/
 ├── api/
 │   ├── client.ts           # Fetch wrapper
 │   ├── entities.ts         # API endpoint functions
@@ -222,7 +222,7 @@ apps/web/src/
 
 ### Example: Adding a New Domain to Frontend
 
-1. **Create API functions** in `apps/web/src/api/entities.ts`:
+1. **Create API functions** in `packages/web/src/api/entities.ts`:
 
 ```typescript
 import client from './client';
@@ -238,7 +238,7 @@ export const entityApi = {
 };
 ```
 
-2. **Create TanStack Query composable** in `apps/web/src/api/useEntities.ts`:
+2. **Create TanStack Query composable** in `packages/web/src/api/useEntities.ts`:
 
 ```typescript
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
@@ -283,7 +283,7 @@ export function useDeleteEntity() {
 }
 ```
 
-3. **Create component** in `apps/web/src/components/EntityCard.vue`:
+3. **Create component** in `packages/web/src/components/EntityCard.vue`:
 
 ```vue
 <script setup lang="ts">
@@ -320,7 +320,7 @@ async function handleDelete(id: number, name: string) {
 
 ### Modal System
 
-See `apps/web/src/components/modal/README.md` for detailed modal system documentation.
+See `packages/web/src/components/modal/README.md` for detailed modal system documentation.
 
 ### Form Validation
 
@@ -336,7 +336,7 @@ const { validateField, getError, validateAll } = useFormValidation(schema, formD
 
 ### Testing
 
-Write tests in `apps/web/src/` using Vitest:
+Write tests in `packages/web/src/` using Vitest:
 
 ```typescript
 import { describe, test, expect } from 'vitest';
@@ -352,8 +352,8 @@ describe('MyComponent', () => {
 
 Type safety is maintained across the stack:
 
-1. Define types in `apps/api/src/{domain}/schema.ts` using Elysia types
-2. Export them in `apps/api/src/types.ts`
+1. Define types in `packages/api/src/{domain}/schema.ts` using Elysia types
+2. Export them in `packages/api/src/types.ts`
 3. Import in frontend: `import type { Entity } from "@puck/api"`
 
 ## Linting & Type Checking
@@ -369,9 +369,9 @@ bunx tsc --noEmit          # Type check
 
 Study these for complete examples:
 
-- **Coffees**: `apps/api/src/coffees/` and `apps/web/src/api/coffees.ts`
-- **Equipment**: `apps/api/src/equipment/` and `apps/web/src/api/equipment.ts`
-- **Extractions**: `apps/api/src/extractions/` and `apps/web/src/api/extractions.ts`
+- **Coffees**: `packages/api/src/coffees/` and `packages/web/src/api/coffees.ts`
+- **Equipment**: `packages/api/src/equipment/` and `packages/web/src/api/equipment.ts`
+- **Extractions**: `packages/api/src/extractions/` and `packages/web/src/api/extractions.ts`
 
 ## Key Conventions
 
@@ -379,6 +379,6 @@ Study these for complete examples:
 - **Error responses**: Return `{ error: string }` format
 - **HTTP status codes**: Use appropriate codes (201 for create, 204 for delete, 404 for not found)
 - **Vue components**: Use `<script setup lang="ts">` syntax
-- **API client**: Always use the wrapper in `apps/web/src/api/client.ts`
+- **API client**: Always use the wrapper in `packages/web/src/api/client.ts`
 - **Query invalidation**: Invalidate relevant queries after mutations
 - **Type safety**: Never use `any` - leverage TypeScript strict mode

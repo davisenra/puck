@@ -10,6 +10,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["apps/api/**/*"],
+  "include": ["packages/api/**/*"],
   "exclude": ["node_modules"]
 }

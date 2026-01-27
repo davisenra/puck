@@ -13,7 +13,7 @@
     "lint": "bun run lint:code-style && bun run lint:api && bun run lint:web"
   },
   "workspaces": [
-    "apps/*"
+    "packages/*"
   ],
   "dependencies": {},
   "devDependencies": {

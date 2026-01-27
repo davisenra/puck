@@ -17,13 +17,13 @@ LABEL \
 WORKDIR /app
 
 COPY package.json bun.lock ./
-COPY apps/api/package.json ./apps/api/
+COPY packages/api/package.json ./packages/api/
 
 RUN bun install
 
-COPY apps/api ./apps/api
+COPY packages/api ./packages/api
 
-RUN bun build --compile --minify-whitespace --minify-syntax --outfile ./server ./apps/api/src/index.ts
+RUN bun build --compile --minify-whitespace --minify-syntax --outfile ./server ./packages/api/src/index.ts
 
 FROM gcr.io/distroless/base
 
@@ -41,7 +41,7 @@ LABEL \
 WORKDIR /app
 
 COPY --from=build /app/server ./server
-COPY --from=build /app/apps/api/migrations ./migrations
+COPY --from=build /app/packages/api/migrations ./migrations
 
 ENV NODE_ENV=production
 ENV PORT=3000
