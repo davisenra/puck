@@ -23,10 +23,11 @@ const schema = {
   type: { required: true, message: "Type is required" },
 };
 
-const { reset, validateAll, handleBlur, hasError, getError } =
-  useFormValidation(schema, form, { mode: "blur" });
-
-reset();
+const { validateAll, handleBlur, hasError, getError } = useFormValidation(
+  schema,
+  form,
+  { mode: "blur" },
+);
 
 function handleSave(): void {
   if (!validateAll()) {

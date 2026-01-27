@@ -5,6 +5,7 @@ import {
   useCreateEquipment,
   useDeleteEquipment,
 } from "@/api/useEquipment";
+import { Equipment } from "@/types";
 
 const { openManageEquipmentModal, openAddEquipmentModal } = useModal();
 
@@ -22,8 +23,8 @@ async function handleAddEquipment() {
   }
 }
 
-async function handleView(item: NonNullable<typeof equipment.value>[0]) {
-  const result = await openManageEquipmentModal({ equipment: item });
+async function handleView(item: Equipment) {
+  const result = await openManageEquipmentModal(item);
   if (result?.deleted) {
     deleteEquipment.mutate(item.id, {
       onError: (error) => console.error("Failed to delete equipment:", error),

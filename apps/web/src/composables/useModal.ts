@@ -4,9 +4,12 @@ import LogExtractionModal from "@/components/Modal/Modals/LogExtractionModal.vue
 import AddEquipmentModal from "@/components/Modal/Modals/AddEquipmentModal.vue";
 import AddCoffeeModal from "@/components/Modal/Modals/AddCoffeeModal.vue";
 import ManageCoffeeModal from "@/components/Modal/Modals/ManageCoffeeModal.vue";
-import ManageEquipmentModal from "@/components/Modal/Modals/ManageEquipmentModal.vue";
+import ManageEquipmentModal, {
+  ManageEquipmentModalProps,
+} from "@/components/Modal/Modals/ManageEquipmentModal.vue";
 import ManageExtractionModal from "@/components/Modal/Modals/ManageExtractionModal.vue";
 import { Coffee, UpdateCoffee } from "@/types";
+import { CoffeeFormState } from "@/schemas/coffee";
 
 export function useModal() {
   const modalStore = useModalStore();
@@ -61,20 +64,16 @@ export function useModal() {
     return openModal(AddCoffeeModal, options || {});
   }
 
-  async function openManageCoffeeModal(options: {
-    coffee: Coffee;
-  }): Promise<{ deleted?: boolean; updated?: UpdateCoffee }> {
-    return openModal(ManageCoffeeModal, options);
+  async function openManageCoffeeModal(
+    props: CoffeeFormState,
+  ): Promise<{ deleted?: boolean; updated?: UpdateCoffee }> {
+    return openModal(ManageCoffeeModal, props);
   }
 
-  async function openManageEquipmentModal(options: {
-    equipment: {
-      id: number;
-      name: string;
-      type: "GRINDER" | "BREWER";
-    };
-  }): Promise<{ deleted?: boolean }> {
-    return openModal(ManageEquipmentModal, options);
+  async function openManageEquipmentModal(
+    props: ManageEquipmentModalProps,
+  ): Promise<{ deleted?: boolean }> {
+    return openModal(ManageEquipmentModal, props);
   }
 
   async function openManageExtractionModal(options: {

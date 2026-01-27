@@ -25,20 +25,6 @@ function handleSave(): void {
 function handleCancel(): void {
   emit("close", null);
 }
-
-const timeInSeconds = computed(() => {
-  const [minutes, seconds] = form.value.time.split(":").map(Number);
-  const mins = minutes ?? 0;
-  const secs = seconds ?? 0;
-  return mins * 60 + secs;
-});
-
-function updateTimeDisplay(): void {
-  const seconds = timeInSeconds.value;
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  form.value.time = `${mins}:${secs.toString().padStart(2, "0")}`;
-}
 </script>
 
 <template>

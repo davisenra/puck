@@ -32,7 +32,7 @@ async function handleAddCoffee() {
 }
 
 async function handleView(item: Coffee) {
-  const result = await openManageCoffeeModal({ coffee: item });
+  const result = await openManageCoffeeModal(item);
   if (result?.deleted) {
     deleteCoffee.mutate(item.id, {
       onError: (error) => console.error("Failed to delete coffee:", error),
@@ -97,8 +97,9 @@ function getStatusText(archived: boolean): string {
                     'badge',
                     !item.archived ? 'badge-success' : 'badge-neutral',
                   ]"
-                  >{{ getStatusText(item.archived) }}</span
                 >
+                  {{ getStatusText(item.archived) }}
+                </span>
               </td>
             </tr>
           </tbody>
