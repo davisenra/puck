@@ -3,6 +3,7 @@ import { openapi } from '@elysiajs/openapi';
 import { Elysia } from 'elysia';
 
 import coffeesRoutes from './coffees/routes';
+import { db } from './database';
 import equipmentRoutes from './equipment/routes';
 import { ApplicationError } from './errors';
 import extractionsRoutes from './extractions/routes';
@@ -23,5 +24,14 @@ export async function createElysiaApplication() {
     .use(equipmentRoutes)
     .use(coffeesRoutes)
     .use(extractionsRoutes)
-    .get('/', () => '☕');
+    .get('/', () => '☕')
+    .get('/health', () => {
+      try {
+        db.query('SELECT 1').get();
+        return { alive: true };
+      } catch (e) {
+        logger.error(e);
+        return { alive: false };
+      }
+    });
 }

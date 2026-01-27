@@ -11,7 +11,7 @@ type Migration = {
 };
 
 export async function loadMigrations(): Promise<Migration[]> {
-  const migrationsDir = join(import.meta.dir, '..', 'migrations');
+  const migrationsDir = process.env.MIGRATIONS_PATH || join(import.meta.dir, '..', 'migrations');
 
   try {
     const files = readdirSync(migrationsDir).filter((file) => file.endsWith('.sql'));
