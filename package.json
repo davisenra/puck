@@ -6,6 +6,7 @@
     "dev:web": "bun --filter @puck/web dev",
     "test:api": "bun --filter @puck/api test",
     "test:web": "bun --filter @puck/web test",
+    "test": "bun run test:api && bun run test:web",
     "lint:format": "prettier --write ./**/*.{ts,json,vue,html}",
     "lint:code-style": "prettier --check ./**/*.{ts,json,vue,html}",
     "lint:web": "bun --filter @puck/web type-check",

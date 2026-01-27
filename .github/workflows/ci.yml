@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
+    branches: [main]
 
 jobs:
   ci:
@@ -15,4 +15,4 @@ jobs:
       - run: bun install
       - run: bun run lint
       - run: bunx tsc --noEmit
-      - run: bun run test:api
+      - run: bun run test
