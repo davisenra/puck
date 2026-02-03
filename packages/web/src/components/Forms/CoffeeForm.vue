@@ -2,8 +2,9 @@
 import type { ComputedRef } from "vue";
 import type { CoffeeFormState } from "@/schemas/coffee";
 
+const model = defineModel<CoffeeFormState>({ required: true });
+
 const props = defineProps<{
-  modelValue: CoffeeFormState;
   validation: {
     hasError: (field: keyof CoffeeFormState) => ComputedRef<boolean>;
     getError: (field: keyof CoffeeFormState) => ComputedRef<string | undefined>;
@@ -11,14 +12,6 @@ const props = defineProps<{
   };
   showArchived?: boolean;
 }>();
-
-const emit = defineEmits<{
-  (e: "update:modelValue", value: CoffeeFormState): void;
-}>();
-
-function update(field: keyof CoffeeFormState, value: any) {
-  emit("update:modelValue", { ...props.modelValue, [field]: value });
-}
 
 function getStatusText(archived?: boolean): string {
   return archived ? "Archived" : "Available";
@@ -32,8 +25,7 @@ function getStatusText(archived?: boolean): string {
         <span class="label-text">Roaster</span>
       </label>
       <input
-        :value="modelValue.roaster"
-        @input="update('roaster', ($event.target as HTMLInputElement).value)"
+        v-model="model.roaster"
         type="text"
         class="input input-bordered input-sm w-full"
         :class="{ 'input-error': validation.hasError('roaster').value }"
@@ -55,8 +47,7 @@ function getStatusText(archived?: boolean): string {
         <span class="label-text">Name</span>
       </label>
       <input
-        :value="modelValue.name"
-        @input="update('name', ($event.target as HTMLInputElement).value)"
+        v-model="model.name"
         type="text"
         class="input input-bordered input-sm w-full"
         :class="{ 'input-error': validation.hasError('name').value }"
@@ -78,8 +69,7 @@ function getStatusText(archived?: boolean): string {
         <span class="label-text">Roast Date</span>
       </label>
       <input
-        :value="modelValue.roastDate"
-        @input="update('roastDate', ($event.target as HTMLInputElement).value)"
+        v-model="model.roastDate"
         type="date"
         class="input input-bordered input-sm w-full"
         @blur="validation.handleBlur('roastDate')"
@@ -91,8 +81,7 @@ function getStatusText(archived?: boolean): string {
         <span class="label-text">Process</span>
       </label>
       <input
-        :value="modelValue.process"
-        @input="update('process', ($event.target as HTMLInputElement).value)"
+        v-model="model.process"
         type="text"
         class="input input-bordered input-sm w-full"
         :class="{ 'input-error': validation.hasError('process').value }"
@@ -114,8 +103,7 @@ function getStatusText(archived?: boolean): string {
         <span class="label-text">Notes</span>
       </label>
       <textarea
-        :value="modelValue.notes"
-        @input="update('notes', ($event.target as HTMLInputElement).value)"
+        v-model="model.notes"
         class="textarea textarea-bordered textarea-sm w-full"
         :class="{ 'textarea-error': validation.hasError('notes').value }"
         placeholder="Tasting notes, origins, etc."
@@ -133,23 +121,14 @@ function getStatusText(archived?: boolean): string {
     </div>
 
     <div v-if="showArchived" class="form-control">
-      <label class="label">
-        <span class="label-text">Status</span>
-      </label>
       <label class="label cursor-pointer">
         <span class="label-text">Archived</span>
         <input
-          :checked="modelValue.archived"
-          @change="
-            update('archived', ($event.target as HTMLInputElement).checked)
-          "
+          v-model="model.archived"
           type="checkbox"
           class="checkbox checkbox-sm"
         />
       </label>
-      <span class="text-base-content/50 text-xs">
-        Current: {{ getStatusText(modelValue.archived) }}
-      </span>
     </div>
   </div>
 </template>
