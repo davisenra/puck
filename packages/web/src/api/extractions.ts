@@ -1,13 +1,17 @@
 import client from "./client";
 import type {
   Extraction,
-  ExtractionList,
+  PaginatedExtractions,
   CreateExtraction,
   UpdateExtraction,
+  PaginationParams,
 } from "@/types";
 
 export const extractionApi = {
-  listAll: () => client.get<ExtractionList>("/extractions"),
+  listAll: (params?: PaginationParams) =>
+    client.get<PaginatedExtractions>("/extractions", {
+      query: params as Record<string, unknown>,
+    }),
   get: (id: number) => client.get<Extraction>(`/extractions/${id}`),
   create: (data: CreateExtraction) =>
     client.post<CreateExtraction, Extraction>("/extractions", data),

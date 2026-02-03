@@ -8,7 +8,12 @@ import ManageEquipmentModal, {
   ManageEquipmentModalProps,
 } from "@/components/Modal/Modals/ManageEquipmentModal.vue";
 import ManageExtractionModal from "@/components/Modal/Modals/ManageExtractionModal.vue";
-import { Coffee, UpdateCoffee, UpdateEquipment } from "@/types";
+import {
+  Coffee,
+  UpdateCoffee,
+  UpdateEquipment,
+  CreateExtraction,
+} from "@/types";
 import { CoffeeFormState } from "@/schemas/coffee";
 
 export function useModal() {
@@ -42,7 +47,7 @@ export function useModal() {
 
   async function openLogExtractionModal(
     options?: Record<string, any>,
-  ): Promise<{ extraction: any } | null> {
+  ): Promise<{ extraction: CreateExtraction } | null> {
     return openModal(LogExtractionModal, options || {});
   }
 
@@ -77,17 +82,8 @@ export function useModal() {
   }
 
   async function openManageExtractionModal(options: {
-    extraction: {
-      id: number;
-      coffee: string;
-      brewer: string;
-      grinder: string;
-      dose: string;
-      yield: string;
-      time: string;
-      rating: number;
-    };
-  }): Promise<{ deleted?: boolean }> {
+    extractionId: number;
+  }): Promise<{ deleted?: boolean; updated?: any }> {
     return openModal(ManageExtractionModal, options);
   }
 

@@ -46,7 +46,7 @@ export const UpdateExtractionSchema = t.Object({
   yield: t.Optional(t.Numeric()),
   brewTime: t.Optional(t.Numeric()),
   waterTemp: t.Optional(t.Nullable(t.Numeric())),
-  rating: t.Optional(t.Numeric({ minimum: 1, maximum: 10 })),
+  rating: t.Optional(t.Numeric({ minimum: 1, maximum: 5 })),
   tastingNotes: t.Optional(t.Nullable(t.String())),
   recipeMetadata: t.Optional(t.Nullable(t.Object({}, {}))),
 });

@@ -9,15 +9,24 @@ import { ApplicationError } from './errors';
 import extractionsRoutes from './extractions/routes';
 import logger from './logger';
 
+type ApiError = {
+  error: string;
+  exception?: Error;
+};
+
 export async function createElysiaApplication() {
   return new Elysia()
     .onError(({ error, set }) => {
       if (error instanceof ApplicationError) {
         set.status = error.status;
-        return { error: error.message };
+        return { error: error.message } as ApiError;
       }
       logger.error(`Internal error: ${error}`);
-      return { error: 'Internal server error' };
+      const response: ApiError = { error: 'Internal server error' };
+      if (process.env.NODE_ENV !== 'production') {
+        response.exception = error as Error;
+      }
+      return response;
     })
     .use(cors())
     .use(openapi())

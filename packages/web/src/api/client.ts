@@ -27,8 +27,24 @@ class APIClient {
     return response.json();
   }
 
-  async get<T>(path: string): Promise<T> {
-    return this.request<T>(path, { method: "GET" });
+  async get<T>(
+    path: string,
+    options?: { query?: Record<string, unknown> },
+  ): Promise<T> {
+    let url = path;
+    if (options?.query) {
+      const params = new URLSearchParams();
+      for (const [key, value] of Object.entries(options.query)) {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      }
+      const queryString = params.toString();
+      if (queryString) {
+        url = `${path}?${queryString}`;
+      }
+    }
+    return this.request<T>(url, { method: "GET" });
   }
 
   async post<TBody, TResponse>(path: string, body: TBody): Promise<TResponse> {

@@ -9,6 +9,7 @@ export interface Equipment {
 }
 
 export type EquipmentList = Equipment[];
+
 export interface CreateEquipment {
   name: string;
   type: EquipmentType;
@@ -31,6 +32,7 @@ export interface Coffee {
 }
 
 export type CoffeeList = Coffee[];
+
 export interface CreateCoffee {
   roaster: string;
   name: string;
@@ -49,7 +51,6 @@ export interface UpdateCoffee {
   archived?: boolean;
 }
 
-// Extraction Types
 export interface EquipmentReference {
   id: number;
   name: string;
@@ -78,6 +79,7 @@ export interface Extraction {
 }
 
 export type ExtractionList = Extraction[];
+
 export interface CreateExtraction {
   coffeeId: number;
   brewerId: number;
