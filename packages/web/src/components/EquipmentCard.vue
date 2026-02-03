@@ -3,6 +3,7 @@ import { useModal } from "@/composables/useModal";
 import {
   useEquipment,
   useCreateEquipment,
+  useUpdateEquipment,
   useDeleteEquipment,
 } from "@/api/useEquipment";
 import { Equipment } from "@/types";
@@ -11,6 +12,7 @@ const { openManageEquipmentModal, openAddEquipmentModal } = useModal();
 
 const { data: equipment, isLoading, error } = useEquipment();
 const createEquipment = useCreateEquipment();
+const updateEquipment = useUpdateEquipment();
 const deleteEquipment = useDeleteEquipment();
 
 async function handleAddEquipment() {
@@ -29,6 +31,13 @@ async function handleView(item: Equipment) {
     deleteEquipment.mutate(item.id, {
       onError: (error) => console.error("Failed to delete equipment:", error),
     });
+  } else if (result?.updated) {
+    updateEquipment.mutate(
+      { id: item.id, data: result.updated },
+      {
+        onError: (error) => console.error("Failed to update equipment:", error),
+      },
+    );
   }
 }
 </script>

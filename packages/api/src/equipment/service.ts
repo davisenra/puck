@@ -1,5 +1,5 @@
 import { db } from '../database';
-import { CreateEquipment, Equipment, EquipmentList } from './schema';
+import { CreateEquipment, Equipment, EquipmentList, UpdateEquipment } from './schema';
 
 type EquipmentDatabaseRow = Record<string, any>;
 
@@ -10,6 +10,8 @@ const INSERT_SQL =
   'INSERT INTO equipment (name, type, created_at, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
 
 const DELETE_SQL = 'DELETE FROM equipment WHERE id = ?';
+
+const UPDATE_SQL = 'UPDATE equipment SET name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
 
 const FIND_BY_ID_SQL = 'SELECT * FROM equipment WHERE id = ?';
 
@@ -54,4 +56,9 @@ async function find(id: number): Promise<Equipment | undefined> {
   return row ? mapDatabaseRowToSchema(row) : undefined;
 }
 
-export default { listAll, save, destroy, find };
+async function update(id: number, data: UpdateEquipment): Promise<Equipment | undefined> {
+  db.query(UPDATE_SQL).run(data.name, id);
+  return await find(id);
+}
+
+export default { listAll, save, destroy, find, update };

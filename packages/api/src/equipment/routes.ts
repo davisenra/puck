@@ -5,6 +5,7 @@ import {
   EquipmentFilterParamsSchema,
   EquipmentListSchema,
   EquipmentSchema,
+  UpdateEquipmentSchema,
 } from './schema';
 import EquipmentService from './service';
 
@@ -49,6 +50,27 @@ export default new Elysia({ prefix: '/equipment' })
       params: t.Object({
         id: t.String(),
       }),
+      response: {
+        200: EquipmentSchema,
+        404: t.Object({ error: t.String() }),
+      },
+    },
+  )
+  .put(
+    '/:id',
+    async ({ params: { id }, body, set }) => {
+      const equipment = await EquipmentService.update(Number(id), body);
+      if (!equipment) {
+        set.status = 404;
+        return { error: 'Equipment not found' };
+      }
+      return equipment;
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+      body: UpdateEquipmentSchema,
       response: {
         200: EquipmentSchema,
         404: t.Object({ error: t.String() }),

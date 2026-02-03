@@ -125,4 +125,38 @@ describe('/equipment', async () => {
     const data = await response.json();
     expect(data).toBeArrayOfSize(2);
   });
+
+  test('updates equipment name and returns updated equipment', async () => {
+    const created = await EquipmentService.save({ name: 'Original Name', type: 'GRINDER' });
+
+    const response = await app.handle(
+      new Request(`http://localhost/equipment/${created.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Updated Name' }),
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const data = await response.json();
+
+    expect(data.id).toBe(created.id);
+    expect(data.name).toBe('Updated Name');
+    expect(data.type).toBe('GRINDER');
+  });
+
+  test('returns 404 when updating equipment that does not exist', async () => {
+    const response = await app.handle(
+      new Request('http://localhost/equipment/9999', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Updated Name' }),
+      }),
+    );
+
+    expect(response.status).toBe(404);
+
+    const data = await response.json();
+    expect(data.error).toBe('Equipment not found');
+  });
 });

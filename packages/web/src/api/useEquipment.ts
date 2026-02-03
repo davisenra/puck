@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { equipmentApi } from "./equipment";
-import type { CreateEquipment } from "@/types";
+import type { CreateEquipment, UpdateEquipment } from "@/types";
 
 export function useEquipment() {
   return useQuery({ queryKey: ["equipment"], queryFn: equipmentApi.listAll });
@@ -17,6 +17,15 @@ export function useCreateEquipment() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateEquipment) => equipmentApi.create(data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["equipment"] }),
+  });
+}
+
+export function useUpdateEquipment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdateEquipment }) =>
+      equipmentApi.update(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["equipment"] }),
   });
 }

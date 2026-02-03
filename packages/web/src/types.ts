@@ -1,4 +1,3 @@
-// Equipment Types
 export type EquipmentType = "GRINDER" | "BREWER";
 
 export interface Equipment {
@@ -15,7 +14,10 @@ export interface CreateEquipment {
   type: EquipmentType;
 }
 
-// Coffee Types
+export interface UpdateEquipment {
+  name: string;
+}
+
 export interface Coffee {
   id: number;
   roaster: string;
@@ -100,7 +102,6 @@ export interface UpdateExtraction {
   recipeMetadata?: Record<string, unknown> | null;
 }
 
-// Pagination Types (for extractions)
 export interface PaginationMeta {
   total: number;
   page: number;

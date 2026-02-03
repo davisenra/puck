@@ -15,6 +15,10 @@ export const CreateEquipmentSchema = t.Object({
   type: EquipmentType,
 });
 
+export const UpdateEquipmentSchema = t.Object({
+  name: t.String({ minLength: 1 }),
+});
+
 export const EquipmentListSchema = t.Array(EquipmentSchema);
 
 export const EquipmentFilterParamsSchema = t.Object({
@@ -24,4 +28,5 @@ export const EquipmentFilterParamsSchema = t.Object({
 export type Equipment = typeof EquipmentSchema.static;
 export type EquipmentList = typeof EquipmentListSchema.static;
 export type CreateEquipment = typeof CreateEquipmentSchema.static;
+export type UpdateEquipment = typeof UpdateEquipmentSchema.static;
 export type EquipmentFilterParams = typeof EquipmentFilterParamsSchema.static;

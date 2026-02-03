@@ -1,6 +1,11 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import BaseModal from "../BaseModal.vue";
 import ConfirmDeletionButton from "@/components/Buttons/ConfirmDeletionButton.vue";
+import EquipmentForm from "@/components/Forms/EquipmentForm.vue";
+import { useFormValidation } from "@/composables/useFormValidation";
+import type { UpdateEquipment } from "@/types";
+import { equipmentSchema, type EquipmentFormState } from "@/schemas/equipment";
 
 export interface ManageEquipmentModalProps {
   id: number;
@@ -11,16 +16,34 @@ export interface ManageEquipmentModalProps {
 const props = defineProps<ManageEquipmentModalProps>();
 
 const emit = defineEmits<{
-  close: [result: { deleted?: boolean }];
+  close: [result: { deleted?: boolean; updated?: UpdateEquipment }];
 }>();
+
+const form = ref<EquipmentFormState>({
+  name: props.name,
+  type: props.type,
+});
+
+const { validateAll, handleBlur, hasError, getError } = useFormValidation(
+  equipmentSchema,
+  form,
+  { mode: "blur" },
+);
 
 function handleCancel() {
   emit("close", {});
 }
 
 function handleSave() {
-  // no-op
-  emit("close", {});
+  if (!validateAll()) {
+    return;
+  }
+
+  const updatedData: UpdateEquipment = {
+    name: form.value.name,
+  };
+
+  emit("close", { updated: updatedData });
 }
 
 function handleDeleteConfirm() {
@@ -31,20 +54,13 @@ function handleDeleteConfirm() {
 <template>
   <BaseModal @close="handleCancel">
     <h3 class="text-lg font-bold">Manage Equipment</h3>
-    <div class="space-y-4 py-4 text-sm">
-      <div class="form-control">
-        <label class="label">
-          <span class="label-text mr-2">Name</span>
-        </label>
-        <span>{{ props.name }}</span>
-      </div>
-      <div class="form-control">
-        <label class="label">
-          <span class="label-text mr-2">Type</span>
-        </label>
-        <span>{{ props.type }}</span>
-      </div>
-    </div>
+
+    <EquipmentForm
+      v-model="form"
+      :validation="{ hasError, getError, handleBlur }"
+      :type-disabled="true"
+    />
+
     <div class="modal-action flex justify-between">
       <button class="btn btn-sm" @click="handleCancel">Cancel</button>
       <div class="flex gap-2">

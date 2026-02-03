@@ -8,7 +8,7 @@ import ManageEquipmentModal, {
   ManageEquipmentModalProps,
 } from "@/components/Modal/Modals/ManageEquipmentModal.vue";
 import ManageExtractionModal from "@/components/Modal/Modals/ManageExtractionModal.vue";
-import { Coffee, UpdateCoffee } from "@/types";
+import { Coffee, UpdateCoffee, UpdateEquipment } from "@/types";
 import { CoffeeFormState } from "@/schemas/coffee";
 
 export function useModal() {
@@ -72,7 +72,7 @@ export function useModal() {
 
   async function openManageEquipmentModal(
     props: ManageEquipmentModalProps,
-  ): Promise<{ deleted?: boolean }> {
+  ): Promise<{ deleted?: boolean; updated?: UpdateEquipment }> {
     return openModal(ManageEquipmentModal, props);
   }
 
