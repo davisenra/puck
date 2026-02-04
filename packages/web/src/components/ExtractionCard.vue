@@ -8,7 +8,7 @@ import {
 } from "@/api/useExtractions";
 import type { Extraction } from "@/types";
 
-const { openManageExtractionModal, openLogExtractionModal } = useModal();
+const { openManageExtractionModal } = useModal();
 
 const {
   data: extractions,
@@ -18,19 +18,9 @@ const {
   prevPage,
   nextPage,
 } = usePaginatedExtractions(1, 25);
-const createExtraction = useCreateExtraction();
+
 const updateExtraction = useUpdateExtraction();
 const deleteExtraction = useDeleteExtraction();
-
-async function handleAddExtraction() {
-  const result = await openLogExtractionModal();
-
-  if (result?.extraction) {
-    createExtraction.mutate(result.extraction, {
-      onError: (error) => console.error("Failed to create extraction:", error),
-    });
-  }
-}
 
 async function handleView(item: Extraction) {
   const result = await openManageExtractionModal({ extractionId: item.id });
@@ -63,13 +53,6 @@ function renderStars(rating: number): string {
 <template>
   <div id="extractions" class="card bg-base-100 shadow">
     <div class="card-body">
-      <div class="mb-4 flex items-center justify-between">
-        <h2 class="card-title">Extractions</h2>
-        <button class="btn btn-sm" @click="handleAddExtraction">
-          <span>+ Log Extraction</span>
-        </button>
-      </div>
-
       <div v-if="isLoading" class="py-8 text-center">
         <span class="loading loading-spinner loading-md"></span>
         <p class="mt-2">Loading extractions...</p>
