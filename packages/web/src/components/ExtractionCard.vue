@@ -48,6 +48,14 @@ function formatTime(seconds: number): string {
 function renderStars(rating: number): string {
   return "★".repeat(rating) + "☆".repeat(5 - rating);
 }
+
+function formatDate(date: Date): string {
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
 </script>
 
 <template>
@@ -77,6 +85,7 @@ function renderStars(rating: number): string {
               <th>Yield</th>
               <th>Time</th>
               <th>Rating</th>
+              <th>Date</th>
             </tr>
           </thead>
           <tbody>
@@ -102,6 +111,9 @@ function renderStars(rating: number): string {
                 <span class="text-orange-400">{{
                   renderStars(extraction.rating)
                 }}</span>
+              </td>
+              <td class="text-base-content/70 text-sm">
+                {{ formatDate(extraction.createdAt) }}
               </td>
             </tr>
           </tbody>

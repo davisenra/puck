@@ -74,6 +74,16 @@ function handleSave() {
 function handleDeleteConfirm() {
   emit("close", { deleted: true });
 }
+
+function formatDate(date: Date): string {
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 </script>
 
 <template>
@@ -89,13 +99,17 @@ function handleDeleteConfirm() {
     </div>
 
     <ExtractionForm
-      v-else-if="coffees && equipment"
+      v-if="coffees && equipment"
       v-model="form"
       :coffees="coffees"
       :equipment="equipment"
       :validation="{ hasError, getError, handleBlur }"
       :is-edit="true"
     />
+
+    <div v-if="extraction" class="text-base-content/60 text-sm">
+      <p>{{ formatDate(extraction.createdAt) }}</p>
+    </div>
 
     <div class="modal-action flex justify-between">
       <button class="btn btn-sm" @click="handleCancel">Cancel</button>
