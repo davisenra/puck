@@ -37,3 +37,8 @@ package-lock.json
 
 *.db
 *.sqlite
+
+# build artifacts
+packages/api/public
+packages/api/dist
+packages/web/dist

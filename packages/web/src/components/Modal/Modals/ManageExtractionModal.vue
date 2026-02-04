@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { computed } from "vue";
 import BaseModal from "../BaseModal.vue";
 import ConfirmDeletionButton from "@/components/Buttons/ConfirmDeletionButton.vue";
 import ExtractionForm from "@/components/Forms/ExtractionForm.vue";
@@ -11,7 +11,7 @@ import {
 import { useCoffees } from "@/api/useCoffees";
 import { useEquipment } from "@/api/useEquipment";
 import { useExtraction } from "@/api/useExtractions";
-import type { Extraction, UpdateExtraction } from "@/types";
+import type { UpdateExtraction } from "@/types";
 
 interface Props {
   extractionId: number;

@@ -7,13 +7,7 @@ import { useFormValidation } from "@/composables/useFormValidation";
 import type { UpdateEquipment } from "@/types";
 import { equipmentSchema, type EquipmentFormState } from "@/schemas/equipment";
 
-export interface ManageEquipmentModalProps {
-  id: number;
-  name: string;
-  type: "GRINDER" | "BREWER";
-}
-
-const props = defineProps<ManageEquipmentModalProps>();
+const props = defineProps<EquipmentFormState>();
 
 const emit = defineEmits<{
   close: [result: { deleted?: boolean; updated?: UpdateEquipment }];

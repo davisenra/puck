@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun run --watch src/index.ts | pino-pretty",
-    "build": "bun build ./src/index.ts --outdir ./dist",
+    "build": "bun build --compile --minify-whitespace --minify-syntax --outfile ./dist/server ./src/index.ts",
     "test": "bun test **/**/*.test.ts",
     "lint": "eslint .",
     "migrate": "bun run scripts/migrate.ts",
@@ -15,6 +15,7 @@
   "dependencies": {
     "@elysiajs/cors": "^1.4.1",
     "@elysiajs/openapi": "^1.4.13",
+    "@elysiajs/static": "^1.4.1",
     "elysia": "latest",
     "pino": "^10.2.1"
   },

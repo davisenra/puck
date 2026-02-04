@@ -4,17 +4,13 @@ import LogExtractionModal from "@/components/Modal/Modals/LogExtractionModal.vue
 import AddEquipmentModal from "@/components/Modal/Modals/AddEquipmentModal.vue";
 import AddCoffeeModal from "@/components/Modal/Modals/AddCoffeeModal.vue";
 import ManageCoffeeModal from "@/components/Modal/Modals/ManageCoffeeModal.vue";
-import ManageEquipmentModal, {
-  ManageEquipmentModalProps,
-} from "@/components/Modal/Modals/ManageEquipmentModal.vue";
+import ManageEquipmentModal from "@/components/Modal/Modals/ManageEquipmentModal.vue";
 import ManageExtractionModal from "@/components/Modal/Modals/ManageExtractionModal.vue";
-import {
-  Coffee,
-  UpdateCoffee,
-  UpdateEquipment,
-  CreateExtraction,
-} from "@/types";
+
+import { UpdateCoffee, UpdateEquipment, CreateExtraction } from "@/types";
+
 import { CoffeeFormState } from "@/schemas/coffee";
+import { EquipmentFormState } from "@/schemas/equipment";
 
 export function useModal() {
   const modalStore = useModalStore();
@@ -76,7 +72,7 @@ export function useModal() {
   }
 
   async function openManageEquipmentModal(
-    props: ManageEquipmentModalProps,
+    props: EquipmentFormState,
   ): Promise<{ deleted?: boolean; updated?: UpdateEquipment }> {
     return openModal(ManageEquipmentModal, props);
   }

@@ -5,6 +5,9 @@ import prettier from 'eslint-config-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
 export default [
+  {
+    ignores: ['public/**'],
+  },
   eslint.configs.recommended,
   {
     files: ['**/*.ts'],

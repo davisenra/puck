@@ -1,6 +1,7 @@
 import { cors } from '@elysiajs/cors';
 import { openapi } from '@elysiajs/openapi';
-import { Elysia } from 'elysia';
+import { staticPlugin as serveStatic } from '@elysiajs/static';
+import { Elysia, file } from 'elysia';
 
 import coffeesRoutes from './coffees/routes';
 import { db } from './database';
@@ -33,7 +34,7 @@ export async function createElysiaApplication() {
     .use(equipmentRoutes)
     .use(coffeesRoutes)
     .use(extractionsRoutes)
-    .get('/', () => '☕')
+    .get('/api', () => '☕')
     .get('/health', () => {
       try {
         db.query('SELECT 1').get();
@@ -42,5 +43,12 @@ export async function createElysiaApplication() {
         logger.error(e);
         return { alive: false };
       }
-    });
+    })
+    .get('/', () => file('./public/index.html'))
+    .use(
+      serveStatic({
+        assets: 'public',
+        prefix: '',
+      }),
+    );
 }

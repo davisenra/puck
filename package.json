@@ -11,7 +11,10 @@
     "lint:code-style": "prettier --check ./**/*.{ts,json,vue,html}",
     "lint:web": "bun --filter @puck/web type-check",
     "lint:api": "bun --filter @puck/api lint",
-    "lint": "bun run lint:code-style && bun run lint:api && bun run lint:web"
+    "lint": "bun run lint:code-style && bun run lint:api && bun run lint:web",
+    "build": "bun run build:web && bun run build:api && cp -r packages/web/dist packages/api/public",
+    "build:web": "bun --filter @puck/web build",
+    "build:api": "bun --filter @puck/api build"
   },
   "workspaces": [
     "packages/*"
